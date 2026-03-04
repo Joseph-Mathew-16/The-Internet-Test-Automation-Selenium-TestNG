@@ -6,6 +6,8 @@ import org.openqa.selenium.edge.EdgeDriver;
 import org.openqa.selenium.firefox.FirefoxDriver;
 import org.openqa.selenium.remote.RemoteWebDriver;
 import org.openqa.selenium.safari.SafariDriver;
+import org.openqa.selenium.support.ui.ExpectedConditions;
+import org.openqa.selenium.support.ui.WebDriverWait;
 import org.testng.Assert;
 import org.testng.ITestResult;
 import org.testng.Reporter;
@@ -13,6 +15,8 @@ import utilities.ChainTestReporter.AttachScreenshot;
 import utilities.ChainTestReporter.LogToStandardOut;
 import utilities.Configuration;
 import utilities.TimeUtilities;
+
+import java.time.Duration;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -43,6 +47,19 @@ public class TestBase {
             configuration = getConfiguration();
             reportLog("Reusing existing Configuration object.", 6, LogToStandardOut.YES, AttachScreenshot.NO);
         }
+        driver = getDriver();
+        reportLog("Reusing existing RemoteWebDriver object.", 6, LogToStandardOut.YES, AttachScreenshot.NO);
+    }
+
+    /**
+     * Constructor for the TestBase class. It initializes the Configuration and
+     * RemoteWebDriver instances for the current thread. It sets a provided Duration as the explicit wait duration.
+     */
+    public TestBase(Duration explicitWaitDuration) {
+            configuration = new Configuration(this);
+            configuration.timeoutsDurationsExplicitWait = explicitWaitDuration;
+            reportLog("Initialized new Configuration object. Explicit wait duration set as " + explicitWaitDuration.toString() + ".", 6, LogToStandardOut.YES, AttachScreenshot.NO);
+
         driver = getDriver();
         reportLog("Reusing existing RemoteWebDriver object.", 6, LogToStandardOut.YES, AttachScreenshot.NO);
     }
@@ -94,12 +111,12 @@ public class TestBase {
                     Assert.fail(errorMessage);
                     break;
             }
-            driver.get(Configuration.url);
-            reportLog("Loading URL for application under test: " + Configuration.url + ".", 4, LogToStandardOut.YES, AttachScreenshot.NO);
-            driver.manage().timeouts().pageLoadTimeout(Configuration.timeoutsDurationsPageLoadTimeout);
-            reportLog("Page load timeout set to: " + Configuration.timeoutsDurationsPageLoadTimeout.getSeconds() + " seconds.", 6, LogToStandardOut.YES, AttachScreenshot.NO);
-            driver.manage().timeouts().implicitlyWait(Configuration.timeoutsDurationsImplicitWait);
-            reportLog("Implicit wait duration set to: " + Configuration.timeoutsDurationsImplicitWait.getSeconds() + " seconds.", 6, LogToStandardOut.YES, AttachScreenshot.NO);
+            driver.get(configuration.url);
+            reportLog("Loading URL for application under test: " + configuration.url + ".", 4, LogToStandardOut.YES, AttachScreenshot.NO);
+            driver.manage().timeouts().pageLoadTimeout(configuration.timeoutsDurationsPageLoadTimeout);
+            reportLog("Page load timeout set to: " + configuration.timeoutsDurationsPageLoadTimeout.getSeconds() + " seconds.", 6, LogToStandardOut.YES, AttachScreenshot.NO);
+            driver.manage().timeouts().implicitlyWait(configuration.timeoutsDurationsImplicitWait);
+            reportLog("Implicit wait duration set to: " + configuration.timeoutsDurationsImplicitWait.getSeconds() + " seconds.", 6, LogToStandardOut.YES, AttachScreenshot.NO);
             return driver;
         } catch (Exception e) {
             String errorMessage = "Failed to launch browser: " + browser + ".";
@@ -157,13 +174,13 @@ public class TestBase {
 
             logMessage = "[" + testCaseName + "] " + logMessage;
         } catch (Exception _) {
-            new utilities.ChainTestReporter().reportLog("Error when fetching method name for log. Ignore if not run from test suite .xml file.", 6, Configuration.reportLogLevel, logToStandardOut, this, attachScreenshot);
+            new utilities.ChainTestReporter().reportLog("Error when fetching method name for log. Ignore if not run from test suite .xml file.", 6, configuration.reportLogLevel, logToStandardOut, this, attachScreenshot);
         }
 
         String currentTime = new TimeUtilities().getCurrentTimeforReportLogs();
         logMessage = "[" + currentTime + "] " + logMessage;
 
-        new utilities.ChainTestReporter().reportLog(logMessage, logMessageLevel, Configuration.reportLogLevel, logToStandardOut, this, attachScreenshot);
+        new utilities.ChainTestReporter().reportLog(logMessage, logMessageLevel, configuration.reportLogLevel, logToStandardOut, this, attachScreenshot);
     }
 
     /**
@@ -174,6 +191,8 @@ public class TestBase {
      */
     public void click(By locator) {
         try {
+            new WebDriverWait(driver, configuration.timeoutsDurationsExplicitWait).until(ExpectedConditions.and(ExpectedConditions.
+                    presenceOfElementLocated(locator), ExpectedConditions.visibilityOfElementLocated(locator), ExpectedConditions.elementToBeClickable(locator)));
             driver.findElement(locator).click();
             reportLog("Clicked on element located by: " + locator + ".", 4, LogToStandardOut.YES, AttachScreenshot.YES);
         } catch (Exception e) {
