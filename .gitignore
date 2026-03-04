@@ -1,0 +1,8 @@
+# intelliJ IDEA files
+.idea/
+
+# Test Output
+test-output/
+
+# Target
+target/
