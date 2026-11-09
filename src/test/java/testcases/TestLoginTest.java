@@ -6,7 +6,7 @@ import pages.HomePage;
 import pages.SecurePage;
 import testbase.TheInternetWrapper;
 
-public class TestLogin extends TheInternetWrapper {
+public class TestLoginTest extends TheInternetWrapper {
 
     @DataProvider(name = "CSV Data Reader With Browsers")
     public Object[][] dataProvider() {

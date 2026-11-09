@@ -23,7 +23,7 @@ public class LoginPage extends TheInternetWrapper {
      * chaining.
      */
     public LoginPage enterUsername(String username) {
-        enterString(usernameField, username);
+        sendKeys(usernameField, username);
         return this;
     }
 
@@ -35,7 +35,7 @@ public class LoginPage extends TheInternetWrapper {
      * chaining.
      */
     public LoginPage enterPassword(String password) {
-        enterString(passwordField, password);
+        sendKeys(passwordField, password);
         return this;
     }
 

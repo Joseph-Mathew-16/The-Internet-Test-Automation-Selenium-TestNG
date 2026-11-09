@@ -211,7 +211,7 @@ public class TestBase {
      * @param inputString - The string to be entered into the element located by the
      *                    given locator
      */
-    public void enterString(By locator, CharSequence inputString) {
+    public void sendKeys(By locator, CharSequence inputString) {
         try {
             driver.findElement(locator).sendKeys(inputString);
             reportLog("Entered string: '" + inputString + "' into element located by: " + locator + ".", 4, LogToStandardOut.YES, AttachScreenshot.YES);

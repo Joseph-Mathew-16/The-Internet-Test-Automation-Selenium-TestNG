@@ -3,7 +3,8 @@
        parallel="true">
     <test name="Automation Test">
         <classes>
-            <class name="testcases.TestLogin"/>
+            <class name="testcases.TestLoginTest"/>
+            <class name="testcases.TwoFactorLoginTest"/>
         </classes>
     </test>
 </suite>
