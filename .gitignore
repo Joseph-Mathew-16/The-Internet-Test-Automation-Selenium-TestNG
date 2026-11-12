@@ -12,3 +12,5 @@ target/
 
 # Allure report
 allure-report/
+
+reference/

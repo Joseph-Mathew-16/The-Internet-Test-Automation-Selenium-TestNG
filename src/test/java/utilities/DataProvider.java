@@ -43,7 +43,7 @@ public class DataProvider {
             if (records.size() == 0) {
                 String errorMessage = "The test data CSV file is empty. Folder path: " + folderPath + ". File name: "
                         + fileName + ".";
-                AllureWrapper.step("errorMessage");
+                AllureWrapper.step(errorMessage, ScreenshotOption.SKIP);
                 Assert.fail(errorMessage);
             }
 
@@ -61,12 +61,12 @@ public class DataProvider {
         } catch (FileNotFoundException fileNotFoundException) {
             String errorMessage = "The specified test data CSV file either does not exist, is a directory instead of a file, or can't be read for some other reason. Folder path: "
                     + folderPath + ". File name: " + fileName + ".";
-            AllureWrapper.step("errorMessage");
+            AllureWrapper.step(errorMessage, ScreenshotOption.SKIP);
             Assert.fail(errorMessage, fileNotFoundException);
         } catch (IOException ioException) {
             String errorMessage = "An IO exception occurred while parsing the test data CSV file. Folder path: "
                     + folderPath + ". File name: " + fileName + ".";
-            AllureWrapper.step("errorMessage");
+            AllureWrapper.step(errorMessage, ScreenshotOption.SKIP);
             Assert.fail(errorMessage, ioException);
         }
 
@@ -74,7 +74,7 @@ public class DataProvider {
         // unexpected scenarios.
         String errorMessage = "An unexpected error appeared while reading test data CSV file. Folder path: "
                 + folderPath + ". File name: " + fileName + ".";
-        AllureWrapper.step("errorMessage");
+        AllureWrapper.step(errorMessage, ScreenshotOption.SKIP);
         Assert.fail(errorMessage);
         return null;
     }

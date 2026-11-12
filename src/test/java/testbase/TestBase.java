@@ -3,9 +3,12 @@ package testbase;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import java.time.Duration;
+import java.util.HashMap;
+import java.util.Map;
 
 import org.openqa.selenium.By;
 import org.openqa.selenium.chrome.ChromeDriver;
+import org.openqa.selenium.chrome.ChromeOptions;
 import org.openqa.selenium.edge.EdgeDriver;
 import org.openqa.selenium.firefox.FirefoxDriver;
 import org.openqa.selenium.remote.RemoteWebDriver;
@@ -13,9 +16,11 @@ import org.openqa.selenium.safari.SafariDriver;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
 import org.testng.Assert;
+
 import io.qameta.allure.Step;
 import utilities.AllureWrapper;
 import utilities.Configuration;
+import utilities.ScreenshotOption;
 
 public class TestBase {
 
@@ -39,13 +44,13 @@ public class TestBase {
         if (getConfiguration() == null) {
             configuration = new Configuration(this);
             configurationThreadLocal.set(configuration);
-            AllureWrapper.step("Initialized new Configuration object.");
+            AllureWrapper.step("Initialized new Configuration object.", ScreenshotOption.SKIP);
         } else {
             configuration = getConfiguration();
-            AllureWrapper.step("Reusing existing Configuration object.");
+            AllureWrapper.step("Reusing existing Configuration object.", ScreenshotOption.SKIP);
         }
         driver = getDriver();
-        AllureWrapper.step("Reusing existing RemoteWebDriver object.");
+        AllureWrapper.step("Reusing existing RemoteWebDriver object.", ScreenshotOption.SKIP);
     }
 
     /**
@@ -57,10 +62,10 @@ public class TestBase {
         configuration = new Configuration(this);
         configuration.timeoutsDurationsExplicitWait = explicitWaitDuration;
         AllureWrapper.step("Initialized new Configuration object. Explicit wait duration set as "
-                + explicitWaitDuration.toString() + ".");
+                + explicitWaitDuration.toString() + ".", ScreenshotOption.SKIP);
 
         driver = getDriver();
-        AllureWrapper.step("Reusing existing RemoteWebDriver object.");
+        AllureWrapper.step("Reusing existing RemoteWebDriver object.", ScreenshotOption.SKIP);
     }
 
     /**
@@ -86,44 +91,58 @@ public class TestBase {
         try {
             switch (browser) {
                 case "chrome":
-                    driver = new ChromeDriver();
+                    ChromeOptions chromeOptions = new ChromeOptions();
+                    Map<String, Object> prefs = new HashMap<>();
+                    prefs.put("credentials_enable_service", false);
+                    prefs.put("profile.password_manager_enabled", false);
+                    prefs.put("profile.password_manager_leak_detection", false);
+                    chromeOptions.setExperimentalOption("prefs", prefs);
+                    chromeOptions
+                            .addArguments("--disable-features=PasswordLeakDetection,SafetyCheckPasswordsLeakDetection");
+                    driver = new ChromeDriver(chromeOptions);
                     driverThreadLocal.set(driver);
+                    AllureWrapper.setTestBase(this);
                     AllureWrapper.step("Launched Chrome browser successfully.");
                     break;
                 case "firefox":
                     driver = new FirefoxDriver();
                     driverThreadLocal.set(driver);
+                    AllureWrapper.setTestBase(this);
                     AllureWrapper.step("Launched Firefox browser successfully.");
                     break;
                 case "edge":
                     driver = new EdgeDriver();
                     driverThreadLocal.set(driver);
+                    AllureWrapper.setTestBase(this);
                     AllureWrapper.step("Launched Edge browser successfully.");
                     break;
                 case "safari":
                     driver = new SafariDriver();
                     driverThreadLocal.set(driver);
+                    AllureWrapper.setTestBase(this);
                     AllureWrapper.step("Launched Safari browser successfully.");
                     break;
                 default:
                     String errorMessage = "The specified browser is not supported: " + browser
                             + ". Supported browsers are: Chrome, Firefox, Edge, Safari.";
-                    AllureWrapper.step(errorMessage);
+                    AllureWrapper.step(errorMessage, ScreenshotOption.SKIP);
                     Assert.fail(errorMessage);
                     break;
             }
             driver.get(configuration.url);
             AllureWrapper.step("Loading URL for application under test: " + configuration.url + ".");
             driver.manage().timeouts().pageLoadTimeout(configuration.timeoutsDurationsPageLoadTimeout);
-            AllureWrapper.step("Page load timeout set to: " + configuration.timeoutsDurationsPageLoadTimeout.getSeconds()
-                    + " seconds.");
+            AllureWrapper
+                    .step("Page load timeout set to: " + configuration.timeoutsDurationsPageLoadTimeout.getSeconds()
+                            + " seconds.",ScreenshotOption.SKIP);
             driver.manage().timeouts().implicitlyWait(configuration.timeoutsDurationsImplicitWait);
-            AllureWrapper.step("Implicit wait duration set to: " + configuration.timeoutsDurationsImplicitWait.getSeconds()
-                    + " seconds.");
+            AllureWrapper
+                    .step("Implicit wait duration set to: " + configuration.timeoutsDurationsImplicitWait.getSeconds()
+                            + " seconds.",ScreenshotOption.SKIP);
             return driver;
         } catch (Exception e) {
             String errorMessage = "Failed to launch browser: " + browser + ".";
-            AllureWrapper.step(errorMessage);
+            AllureWrapper.step(errorMessage, ScreenshotOption.SKIP);
             Assert.fail(errorMessage, e);
             return null;
         }
@@ -151,10 +170,11 @@ public class TestBase {
             }
             driver.quit();
             driverThreadLocal.remove();
-            AllureWrapper.step("Browser quit successfully.");
+            AllureWrapper.clearTestBase();
+            AllureWrapper.step("Browser quit successfully.", ScreenshotOption.SKIP);
         } catch (Exception e) {
             String errorMessage = "Failed to quit browser.";
-            AllureWrapper.step(errorMessage);
+            AllureWrapper.step(errorMessage, ScreenshotOption.SKIP);
             Assert.fail(errorMessage, e);
         }
     }
@@ -203,7 +223,7 @@ public class TestBase {
     public String getText(By locator) {
         AllureWrapper.step("Getting visible text from element located by: " + locator + ".");
         String text = driver.findElement(locator).getText();
-        AllureWrapper.step("Retrieved text: " + text + ".");
+        AllureWrapper.step("Retrieved text: " + text + ".", ScreenshotOption.SKIP);
         return text;
 
     }
@@ -219,7 +239,8 @@ public class TestBase {
      */
     @Step("Assert that string contains some values")
     public void assertThatStringContains(String actual, CharSequence... values) {
-        AllureWrapper.step("Asserting that actual string: " + actual + " contains expected values: " + String.join(", ", values) + ".");
+        AllureWrapper.step("Asserting that actual string: " + actual + " contains expected values: "
+                + String.join(", ", values) + ".", ScreenshotOption.SKIP);
         assertThat(actual).contains(values);
     }
 
