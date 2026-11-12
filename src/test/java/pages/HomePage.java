@@ -1,10 +1,11 @@
 package pages;
 
+import java.time.Duration;
+
 import org.openqa.selenium.By;
+
 import testbase.TestBase;
 import testbase.TheInternetWrapper;
-
-import java.time.Duration;
 
 /**
  * This class represents the Home Page of the application.

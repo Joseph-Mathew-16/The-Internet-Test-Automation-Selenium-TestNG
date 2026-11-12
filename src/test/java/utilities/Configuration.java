@@ -1,15 +1,15 @@
 package utilities;
 
-import org.testng.Assert;
-import testbase.TestBase;
-import utilities.ChainTestReporter.AttachScreenshot;
-import utilities.ChainTestReporter.LogToStandardOut;
-
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.time.Duration;
 import java.util.Properties;
+
+import org.testng.Assert;
+import org.testng.Reporter;
+
+import testbase.TestBase;
 
 public class Configuration {
 
@@ -65,21 +65,20 @@ public class Configuration {
             reportLogLevel = Integer.parseInt(properties.getProperty("report.log-level"));
         } catch (FileNotFoundException fileNotFoundException) {
             String errorMessage = "configuration.properties file could not be opened because the file does not exist or due to some other reason.";
-            testBase.reportLog(errorMessage, 0, LogToStandardOut.YES, AttachScreenshot.NO);
+            AllureWrapper.step(errorMessage);
             Assert.fail(errorMessage, fileNotFoundException);
         } catch (IOException ioException) {
             String errorMessage = "An error occurred when reading from the input stream for configuration.properties files.";
-            testBase.reportLog(errorMessage, 0, LogToStandardOut.YES, AttachScreenshot.NO);
+            AllureWrapper.step(errorMessage);
             Assert.fail(errorMessage, ioException);
         } catch (IllegalArgumentException illegalArgumentException) {
             String errorMessage = "An error occurred due to the input stream for configuration.properties file containing a malformed Unicode escape sequence";
-            testBase.reportLog(errorMessage, 0, LogToStandardOut.YES, AttachScreenshot.NO);
+            AllureWrapper.step(errorMessage);
             Assert.fail(errorMessage, illegalArgumentException);
         } catch (NullPointerException nullPointerException) {
             String errorMessage = "An error occured as the input stream for configuration.properties file is null.";
-            testBase.reportLog(errorMessage, 0, LogToStandardOut.YES, AttachScreenshot.NO);
+            AllureWrapper.step(errorMessage);
             Assert.fail(errorMessage, nullPointerException);
         }
     }
 }
-

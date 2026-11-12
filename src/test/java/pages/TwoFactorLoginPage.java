@@ -1,6 +1,7 @@
 package pages;
 
 import org.openqa.selenium.By;
+
 import testbase.TheInternetWrapper;
 
 /**
@@ -22,8 +23,9 @@ public class TwoFactorLoginPage extends TheInternetWrapper {
      * Method to enter username in username field.
      *
      * @param username - the username to be entered in the username field.
-     * @return TwoFactorLoginPage - returns the current instance of TwoFactorLoginPage for method
-     * chaining.
+     * @return TwoFactorLoginPage - returns the current instance of
+     *         TwoFactorLoginPage for method
+     *         chaining.
      */
     public TwoFactorLoginPage enterUsername(String username) {
         sendKeys(usernameField, username);
@@ -34,8 +36,9 @@ public class TwoFactorLoginPage extends TheInternetWrapper {
      * Method to enter password in password field.
      *
      * @param password - the password to be entered in the password field.
-     * @return TwoFactorLoginPage - returns the current instance of TwoFactorLoginPage for method
-     * chaining.
+     * @return TwoFactorLoginPage - returns the current instance of
+     *         TwoFactorLoginPage for method
+     *         chaining.
      */
     public TwoFactorLoginPage enterPassword(String password) {
         sendKeys(passwordField, password);
@@ -45,8 +48,9 @@ public class TwoFactorLoginPage extends TheInternetWrapper {
     /**
      * Method to click next button.
      *
-     * @return TwoFactorLoginPage - returns the current instance of TwoFactorLoginPage for method
-     * chaining.
+     * @return TwoFactorLoginPage - returns the current instance of
+     *         TwoFactorLoginPage for method
+     *         chaining.
      */
     public TwoFactorLoginPage clickNextButton() {
         click(nextButton);
@@ -66,8 +70,9 @@ public class TwoFactorLoginPage extends TheInternetWrapper {
      * Enter the one‑time password into the OTP input field.
      *
      * @param otp 6‑digit code to enter.
-     * @return TwoFactorLoginPage - returns the current instance of TwoFactorLoginPage for method
-     * chaining.
+     * @return TwoFactorLoginPage - returns the current instance of
+     *         TwoFactorLoginPage for method
+     *         chaining.
      */
     public TwoFactorLoginPage enterOtp(String otp) {
         sendKeys(otpField, otp);

@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://maven.apache.org/POM/4.0.0"
-         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xmlns="http://maven.apache.org/POM/4.0.0"
+    xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>com.mathew.joseph</groupId>
@@ -14,6 +15,8 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <maven.compiler.release>25</maven.compiler.release>
         <sonar.organization>joseph-mathew-16</sonar.organization>
+        <allure.version>3.1.1</allure.version>
+        <aspectj.version>1.9.27</aspectj.version>
     </properties>
 
     <dependencies>
@@ -41,11 +44,19 @@
             <scope>test</scope>
         </dependency>
 
-        <!-- Source: https://mvnrepository.com/artifact/com.aventstack/chaintest-testng -->
+        <!-- Source: https://mvnrepository.com/artifact/io.qameta.allure/allure-testng -->
         <dependency>
-            <groupId>com.aventstack</groupId>
-            <artifactId>chaintest-testng</artifactId>
-            <version>1.0.12</version>
+            <groupId>io.qameta.allure</groupId>
+            <artifactId>allure-testng</artifactId>
+            <version>${allure.version}</version>
+            <scope>test</scope>
+        </dependency>
+
+        <!-- Source: https://mvnrepository.com/artifact/org.aspectj/aspectjweaver -->
+        <dependency>
+            <groupId>org.aspectj</groupId>
+            <artifactId>aspectjweaver</artifactId>
+            <version>${aspectj.version}</version>
             <scope>test</scope>
         </dependency>
 
@@ -60,63 +71,72 @@
 
     <build>
         <plugins>
-            <!-- Source: https://mvnrepository.com/artifact/org.apache.maven.plugins/maven-clean-plugin -->
+            <!-- Source:
+            https://mvnrepository.com/artifact/org.apache.maven.plugins/maven-clean-plugin -->
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-clean-plugin</artifactId>
                 <version>3.5.0</version>
             </plugin>
 
-            <!-- Source: https://mvnrepository.com/artifact/org.apache.maven.plugins/maven-compiler-plugin -->
+            <!-- Source:
+            https://mvnrepository.com/artifact/org.apache.maven.plugins/maven-compiler-plugin -->
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
                 <version>3.16.0</version>
             </plugin>
 
-            <!-- Source: https://mvnrepository.com/artifact/org.apache.maven.plugins/maven-deploy-plugin -->
+            <!-- Source:
+            https://mvnrepository.com/artifact/org.apache.maven.plugins/maven-deploy-plugin -->
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-deploy-plugin</artifactId>
                 <version>3.2.0</version>
             </plugin>
 
-            <!-- Source: https://mvnrepository.com/artifact/org.apache.maven.plugins/maven-install-plugin -->
+            <!-- Source:
+            https://mvnrepository.com/artifact/org.apache.maven.plugins/maven-install-plugin -->
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-install-plugin</artifactId>
                 <version>3.2.0</version>
             </plugin>
 
-            <!-- Source: https://mvnrepository.com/artifact/org.apache.maven.plugins/maven-jar-plugin -->
+            <!-- Source:
+            https://mvnrepository.com/artifact/org.apache.maven.plugins/maven-jar-plugin -->
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-jar-plugin</artifactId>
                 <version>3.5.1</version>
             </plugin>
 
-            <!-- Source: https://mvnrepository.com/artifact/org.apache.maven.plugins/maven-project-info-reports-plugin -->
+            <!-- Source:
+            https://mvnrepository.com/artifact/org.apache.maven.plugins/maven-project-info-reports-plugin -->
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-project-info-reports-plugin</artifactId>
                 <version>3.9.0</version>
             </plugin>
 
-            <!-- Source: https://mvnrepository.com/artifact/org.apache.maven.plugins/maven-resources-plugin -->
+            <!-- Source:
+            https://mvnrepository.com/artifact/org.apache.maven.plugins/maven-resources-plugin -->
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-resources-plugin</artifactId>
                 <version>3.5.0</version>
             </plugin>
 
-            <!-- Source: https://mvnrepository.com/artifact/org.apache.maven.plugins/maven-site-plugin -->
+            <!-- Source:
+            https://mvnrepository.com/artifact/org.apache.maven.plugins/maven-site-plugin -->
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-site-plugin</artifactId>
                 <version>3.22.0</version>
             </plugin>
 
-            <!-- Source: https://mvnrepository.com/artifact/org.apache.maven.plugins/maven-surefire-plugin -->
+            <!-- Source:
+            https://mvnrepository.com/artifact/org.apache.maven.plugins/maven-surefire-plugin -->
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-surefire-plugin</artifactId>
@@ -125,10 +145,14 @@
                     <suiteXmlFiles>
                         <suiteXmlFile>src/test/resources/regression-test-suite.xml</suiteXmlFile>
                     </suiteXmlFiles>
+                    <argLine>
+                        -javaagent:"${settings.localRepository}/org/aspectj/aspectjweaver/${aspectj.version}/aspectjweaver-${aspectj.version}.jar"
+                    </argLine>
                 </configuration>
             </plugin>
 
-            <!-- Source: https://mvnrepository.com/artifact/org.apache.maven.plugins/maven-surefire-report-plugin -->
+            <!-- Source:
+            https://mvnrepository.com/artifact/org.apache.maven.plugins/maven-surefire-report-plugin -->
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-surefire-report-plugin</artifactId>

@@ -1,0 +1,61 @@
+{
+  "name": "The Internet Test Report",
+  "output": "./allure-report",
+  "historyPath": "./history.jsonl",
+  "historyLimit": 15,
+  "qualityGate": {
+    "rules": [
+      {
+        "maxFailures": 3,
+        "fastFail": true
+      }
+    ]
+  },
+  "plugins": {
+    "awesome": {
+      "options": {
+        "reportName": "The Internet Awesome Test Report",
+        "singleFile": false,
+        "reportLanguage": "en",
+        "open": false,
+        "publish": true,
+        "groupBy": [
+          "suite",
+          "method"
+        ]
+      }
+    },
+    "allure2": {
+      "options": {
+        "reportName": "The Internet Allure2 Test Report",
+        "singleFile": false,
+        "reportLanguage": "en"
+      }
+    },
+    "classic": {
+      "options": {
+        "reportName": "The Internet Classic Test Report",
+        "singleFile": false,
+        "reportLanguage": "en"
+      }
+    },
+    "dashboard": {
+      "options": {
+        "singleFile": false,
+        "reportName": "The Internet Dashboard Test Report",
+        "reportLanguage": "en"
+      }
+    },
+    "csv": {
+      "options": {
+        "fileName": "allure-report.csv"
+      }
+    },
+    "log": {
+      "options": {
+        "groupBy": "none"
+      }
+    }
+  },
+  "variables": {}
+}

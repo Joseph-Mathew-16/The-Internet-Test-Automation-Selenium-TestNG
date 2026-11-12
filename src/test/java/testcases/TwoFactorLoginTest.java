@@ -2,6 +2,7 @@ package testcases;
 
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
+
 import pages.HomePage;
 import pages.SecurePage;
 import pages.TwoFactorLoginPage;
@@ -20,9 +21,7 @@ public class TwoFactorLoginTest extends TheInternetWrapper {
     public void successfulTwoFactorLogin(String browser, String username, String password) {
         launchBrowser(browser);
 
-        new HomePage().clickTwoFactorLoginButton().enterUsername(username).
-                enterPassword(password).
-                clickNextButton();
+        new HomePage().clickTwoFactorLoginButton().enterUsername(username).enterPassword(password).clickNextButton();
 
         String otpCode = new TwoFactorLoginPage().getOtpCodeText();
 

@@ -1,5 +1,9 @@
 package testbase;
 
+import static org.assertj.core.api.Assertions.assertThat;
+
+import java.time.Duration;
+
 import org.openqa.selenium.By;
 import org.openqa.selenium.chrome.ChromeDriver;
 import org.openqa.selenium.edge.EdgeDriver;
@@ -9,16 +13,9 @@ import org.openqa.selenium.safari.SafariDriver;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
 import org.testng.Assert;
-import org.testng.ITestResult;
-import org.testng.Reporter;
-import utilities.ChainTestReporter.AttachScreenshot;
-import utilities.ChainTestReporter.LogToStandardOut;
+import io.qameta.allure.Step;
+import utilities.AllureWrapper;
 import utilities.Configuration;
-import utilities.TimeUtilities;
-
-import java.time.Duration;
-
-import static org.assertj.core.api.Assertions.assertThat;
 
 public class TestBase {
 
@@ -42,26 +39,28 @@ public class TestBase {
         if (getConfiguration() == null) {
             configuration = new Configuration(this);
             configurationThreadLocal.set(configuration);
-            reportLog("Initialized new Configuration object.", 6, LogToStandardOut.YES, AttachScreenshot.NO);
+            AllureWrapper.step("Initialized new Configuration object.");
         } else {
             configuration = getConfiguration();
-            reportLog("Reusing existing Configuration object.", 6, LogToStandardOut.YES, AttachScreenshot.NO);
+            AllureWrapper.step("Reusing existing Configuration object.");
         }
         driver = getDriver();
-        reportLog("Reusing existing RemoteWebDriver object.", 6, LogToStandardOut.YES, AttachScreenshot.NO);
+        AllureWrapper.step("Reusing existing RemoteWebDriver object.");
     }
 
     /**
      * Constructor for the TestBase class. It initializes the Configuration and
-     * RemoteWebDriver instances for the current thread. It sets a provided Duration as the explicit wait duration.
+     * RemoteWebDriver instances for the current thread. It sets a provided Duration
+     * as the explicit wait duration.
      */
     public TestBase(Duration explicitWaitDuration) {
-            configuration = new Configuration(this);
-            configuration.timeoutsDurationsExplicitWait = explicitWaitDuration;
-            reportLog("Initialized new Configuration object. Explicit wait duration set as " + explicitWaitDuration.toString() + ".", 6, LogToStandardOut.YES, AttachScreenshot.NO);
+        configuration = new Configuration(this);
+        configuration.timeoutsDurationsExplicitWait = explicitWaitDuration;
+        AllureWrapper.step("Initialized new Configuration object. Explicit wait duration set as "
+                + explicitWaitDuration.toString() + ".");
 
         driver = getDriver();
-        reportLog("Reusing existing RemoteWebDriver object.", 6, LogToStandardOut.YES, AttachScreenshot.NO);
+        AllureWrapper.step("Reusing existing RemoteWebDriver object.");
     }
 
     /**
@@ -69,7 +68,7 @@ public class TestBase {
      * thread.
      *
      * @return Configuration - The instance of the Configuration for the current
-     * thread
+     *         thread
      */
     public Configuration getConfiguration() {
         return configurationThreadLocal.get();
@@ -82,45 +81,49 @@ public class TestBase {
      *                "firefox", "edge")
      * @return RemoteWebDriver - The instance of the launched browser driver
      */
+    @Step("Launch browser.")
     public RemoteWebDriver launchBrowser(String browser) {
         try {
             switch (browser) {
                 case "chrome":
                     driver = new ChromeDriver();
                     driverThreadLocal.set(driver);
-                    reportLog("Launched Chrome browser successfully.", 4, LogToStandardOut.YES, AttachScreenshot.NO);
+                    AllureWrapper.step("Launched Chrome browser successfully.");
                     break;
                 case "firefox":
                     driver = new FirefoxDriver();
                     driverThreadLocal.set(driver);
-                    reportLog("Launched Firefox browser successfully.", 4, LogToStandardOut.YES, AttachScreenshot.NO);
+                    AllureWrapper.step("Launched Firefox browser successfully.");
                     break;
                 case "edge":
                     driver = new EdgeDriver();
                     driverThreadLocal.set(driver);
-                    reportLog("Launched Edge browser successfully.", 4, LogToStandardOut.YES, AttachScreenshot.NO);
+                    AllureWrapper.step("Launched Edge browser successfully.");
                     break;
                 case "safari":
                     driver = new SafariDriver();
                     driverThreadLocal.set(driver);
-                    reportLog("Launched Safari browser successfully.", 4, LogToStandardOut.YES, AttachScreenshot.NO);
+                    AllureWrapper.step("Launched Safari browser successfully.");
                     break;
                 default:
-                    String errorMessage = "The specified browser is not supported: " + browser + ". Supported browsers are: Chrome, Firefox, Edge, Safari.";
-                    reportLog(errorMessage, 3, LogToStandardOut.YES, AttachScreenshot.NO);
+                    String errorMessage = "The specified browser is not supported: " + browser
+                            + ". Supported browsers are: Chrome, Firefox, Edge, Safari.";
+                    AllureWrapper.step(errorMessage);
                     Assert.fail(errorMessage);
                     break;
             }
             driver.get(configuration.url);
-            reportLog("Loading URL for application under test: " + configuration.url + ".", 4, LogToStandardOut.YES, AttachScreenshot.NO);
+            AllureWrapper.step("Loading URL for application under test: " + configuration.url + ".");
             driver.manage().timeouts().pageLoadTimeout(configuration.timeoutsDurationsPageLoadTimeout);
-            reportLog("Page load timeout set to: " + configuration.timeoutsDurationsPageLoadTimeout.getSeconds() + " seconds.", 6, LogToStandardOut.YES, AttachScreenshot.NO);
+            AllureWrapper.step("Page load timeout set to: " + configuration.timeoutsDurationsPageLoadTimeout.getSeconds()
+                    + " seconds.");
             driver.manage().timeouts().implicitlyWait(configuration.timeoutsDurationsImplicitWait);
-            reportLog("Implicit wait duration set to: " + configuration.timeoutsDurationsImplicitWait.getSeconds() + " seconds.", 6, LogToStandardOut.YES, AttachScreenshot.NO);
+            AllureWrapper.step("Implicit wait duration set to: " + configuration.timeoutsDurationsImplicitWait.getSeconds()
+                    + " seconds.");
             return driver;
         } catch (Exception e) {
             String errorMessage = "Failed to launch browser: " + browser + ".";
-            reportLog(errorMessage, 1, LogToStandardOut.YES, AttachScreenshot.NO);
+            AllureWrapper.step(errorMessage);
             Assert.fail(errorMessage, e);
             return null;
         }
@@ -131,7 +134,7 @@ public class TestBase {
      * thread.
      *
      * @return RemoteWebDriver - The instance of the browser driver for the current
-     * thread
+     *         thread
      */
     public RemoteWebDriver getDriver() {
         return driverThreadLocal.get();
@@ -148,39 +151,12 @@ public class TestBase {
             }
             driver.quit();
             driverThreadLocal.remove();
-            reportLog("Browser quit successfully.", 4, LogToStandardOut.YES, AttachScreenshot.NO);
+            AllureWrapper.step("Browser quit successfully.");
         } catch (Exception e) {
             String errorMessage = "Failed to quit browser.";
-            reportLog(errorMessage, 3, LogToStandardOut.YES, AttachScreenshot.NO);
+            AllureWrapper.step(errorMessage);
             Assert.fail(errorMessage, e);
         }
-    }
-
-    /**
-     * This method will log a message to the TestNG and ChainTest reports.
-     *
-     * @param logMessage       - The message to be logged
-     * @param logMessageLevel  - The level of the log message
-     * @param logToStandardOut - Whether to log the message to standard
-     *                         output/console (YES or NO)
-     * @param attachScreenshot - Whether to attach a screenshot to the log (YES or
-     *                         NO)
-     */
-    public void reportLog(String logMessage, int logMessageLevel, LogToStandardOut logToStandardOut, AttachScreenshot attachScreenshot) {
-        // Attempt to fetch the method name of the currently executing test case and prepend it to the log message. Will ignore any error that occurs while fetching the method name and will not prepend the method name to the log message if any error occurs (e.g., if the test is not run from a test suite .xml file).
-        try {
-            ITestResult result = Reporter.getCurrentTestResult();
-            String testCaseName = result.getMethod().getMethodName();
-
-            logMessage = "[" + testCaseName + "] " + logMessage;
-        } catch (Exception _) {
-            new utilities.ChainTestReporter().reportLog("Error when fetching method name for log. Ignore if not run from test suite .xml file.", 6, configuration.reportLogLevel, logToStandardOut, this, attachScreenshot);
-        }
-
-        String currentTime = new TimeUtilities().getCurrentTimeforReportLogs();
-        logMessage = "[" + currentTime + "] " + logMessage;
-
-        new utilities.ChainTestReporter().reportLog(logMessage, logMessageLevel, configuration.reportLogLevel, logToStandardOut, this, attachScreenshot);
     }
 
     /**
@@ -189,37 +165,29 @@ public class TestBase {
      *
      * @param locator - The By locator of the element to be clicked
      */
+    @Step("Click an element.")
     public void click(By locator) {
-        try {
-            new WebDriverWait(driver, configuration.timeoutsDurationsExplicitWait).until(ExpectedConditions.and(ExpectedConditions.
-                    presenceOfElementLocated(locator), ExpectedConditions.visibilityOfElementLocated(locator), ExpectedConditions.elementToBeClickable(locator)));
-            driver.findElement(locator).click();
-            reportLog("Clicked on element located by: " + locator + ".", 4, LogToStandardOut.YES, AttachScreenshot.YES);
-        } catch (Exception e) {
-            String errorMessage = "Error occurred while clicking on element located by: " + locator + ".";
-            reportLog(errorMessage, 2, LogToStandardOut.YES, AttachScreenshot.YES);
-            Assert.fail(errorMessage, e);
-        }
+        AllureWrapper.step("Click an element located by: " + locator + ".");
+        new WebDriverWait(driver, configuration.timeoutsDurationsExplicitWait)
+                .until(ExpectedConditions.and(ExpectedConditions.presenceOfElementLocated(locator),
+                        ExpectedConditions.visibilityOfElementLocated(locator),
+                        ExpectedConditions.elementToBeClickable(locator)));
+        driver.findElement(locator).click();
     }
 
     /**
      * This method will enter the given input string into the element located by the
      * given locator.
      *
-     * @param locator     - The By locator of the element into which the input
-     *                    string should be entered
-     * @param inputString - The string to be entered into the element located by the
-     *                    given locator
+     * @param locator    - The By locator of the element into which the input
+     *                   string should be entered
+     * @param keysToSend - The keys to be entered into the element located by the
+     *                   given locator
      */
-    public void sendKeys(By locator, CharSequence inputString) {
-        try {
-            driver.findElement(locator).sendKeys(inputString);
-            reportLog("Entered string: '" + inputString + "' into element located by: " + locator + ".", 4, LogToStandardOut.YES, AttachScreenshot.YES);
-        } catch (Exception e) {
-            String errorMessage = "Error occurred while entering string: '" + inputString + "' into element located by: " + locator.toString() + ".";
-            reportLog(errorMessage, 2, LogToStandardOut.YES, AttachScreenshot.YES);
-            Assert.fail(errorMessage, e);
-        }
+    @Step("Enter keys into an element.")
+    public void sendKeys(By locator, CharSequence... keysToSend) {
+        AllureWrapper.step("Enter keys " + String.join(", ", keysToSend));
+        driver.findElement(locator).sendKeys(keysToSend);
     }
 
     /**
@@ -229,39 +197,30 @@ public class TestBase {
      * @param locator - The By locator of the element from which to retrieve the
      *                text
      * @return String - the text retrieved from the element located by the given
-     * locator
+     *         locator
      */
+    @Step("Get visible text of an element.")
     public String getText(By locator) {
-        try {
-            String text = driver.findElement(locator).getText();
-            reportLog("Retrieved text: '" + text + "' from element located by: " + locator + ".", 4, LogToStandardOut.YES, AttachScreenshot.YES);
-            return text;
-        } catch (Exception e) {
-            String errorMessage = "Error occurred while retrieving text from element located by: " + locator + ".";
-            reportLog(errorMessage, 2, LogToStandardOut.YES, AttachScreenshot.YES);
-            Assert.fail(errorMessage, e);
-            return null;
-        }
+        AllureWrapper.step("Getting visible text from element located by: " + locator + ".");
+        String text = driver.findElement(locator).getText();
+        AllureWrapper.step("Retrieved text: " + text + ".");
+        return text;
+
     }
 
     /**
      * This method will assert that the actual string contains the expected
-     * substring.
+     * values.
      *
-     * @param actualString      - Actual string to be checked for containing the
-     *                          expected substring
-     * @param expectedSubstring - Expected substring that should be contained in the
-     *                          actual string
+     * @param actual - Actual string to be checked for containing the
+     *               expected substring
+     * @param values - Expected values that should be contained in the
+     *               actual string
      */
-    public void assertThatStringContains(String actualString, String expectedSubstring) {
-        try {
-            assertThat(actualString).contains(expectedSubstring);
-            reportLog("Assertion passed: Expected string: '" + actualString + "' contains substring: '" + expectedSubstring + "'.", 4, LogToStandardOut.YES, AttachScreenshot.NO);
-        } catch (AssertionError assertionError) {
-            String errorMessage = "Assertion failed: Expected string: '" + actualString + "' does not contain substring: '" + expectedSubstring + "'.";
-            reportLog(errorMessage, 2, LogToStandardOut.YES, AttachScreenshot.NO);
-            Assert.fail(errorMessage, assertionError);
-        }
+    @Step("Assert that string contains some values")
+    public void assertThatStringContains(String actual, CharSequence... values) {
+        AllureWrapper.step("Asserting that actual string: " + actual + " contains expected values: " + String.join(", ", values) + ".");
+        assertThat(actual).contains(values);
     }
 
 }

@@ -1,8 +1,14 @@
 # intelliJ IDEA files
 .idea/
 
+# VS Code files
+.vscode/
+
 # Test Output
 test-output/
 
 # Target
 target/
+
+# Allure report
+allure-report/

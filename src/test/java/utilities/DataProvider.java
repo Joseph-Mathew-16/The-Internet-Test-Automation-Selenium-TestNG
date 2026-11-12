@@ -1,11 +1,5 @@
 package utilities;
 
-import org.apache.commons.csv.CSVFormat;
-import org.apache.commons.csv.CSVParser;
-import org.apache.commons.csv.CSVRecord;
-import org.testng.Assert;
-import testbase.TestBase;
-
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
@@ -14,10 +8,19 @@ import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.apache.commons.csv.CSVFormat;
+import org.apache.commons.csv.CSVParser;
+import org.apache.commons.csv.CSVRecord;
+import org.testng.Assert;
+import org.testng.Reporter;
+
+import testbase.TestBase;
+
 public class DataProvider {
 
     /**
-     * Reads a CSV file from a specified folder within the test-data folder in resources.
+     * Reads a CSV file from a specified folder within the test-data folder in
+     * resources.
      * Returns a 2-dimensional Object array suitable for a TestNG DataProvider.
      *
      * @param folderPath The subfolder within test-data.
@@ -32,13 +35,15 @@ public class DataProvider {
         try {
             // Reads the CSV file.
             Reader reader = new FileReader(path);
-            CSVParser csvParser = CSVParser.builder().setReader(reader).setFormat(CSVFormat.DEFAULT.builder().setHeader().setSkipHeaderRecord(true).setIgnoreHeaderCase(true).setTrim(true).get()).get();
+            CSVParser csvParser = CSVParser.builder().setReader(reader).setFormat(CSVFormat.DEFAULT.builder()
+                    .setHeader().setSkipHeaderRecord(true).setIgnoreHeaderCase(true).setTrim(true).get()).get();
 
             List<CSVRecord> records = csvParser.getRecords();
             // Checks if the file is empty.
             if (records.size() == 0) {
-                String errorMessage = "The test data CSV file is empty. Folder path: " + folderPath + ". File name: " + fileName + ".";
-                testBase.reportLog(errorMessage, 1, ChainTestReporter.LogToStandardOut.YES, ChainTestReporter.AttachScreenshot.NO);
+                String errorMessage = "The test data CSV file is empty. Folder path: " + folderPath + ". File name: "
+                        + fileName + ".";
+                AllureWrapper.step("errorMessage");
                 Assert.fail(errorMessage);
             }
 
@@ -53,20 +58,23 @@ public class DataProvider {
             }
             return data;
 
-
         } catch (FileNotFoundException fileNotFoundException) {
-            String errorMessage = "The specified test data CSV file either does not exist, is a directory instead of a file, or can't be read for some other reason. Folder path: " + folderPath + ". File name: " + fileName + ".";
-            testBase.reportLog(errorMessage, 1, ChainTestReporter.LogToStandardOut.YES, ChainTestReporter.AttachScreenshot.NO);
+            String errorMessage = "The specified test data CSV file either does not exist, is a directory instead of a file, or can't be read for some other reason. Folder path: "
+                    + folderPath + ". File name: " + fileName + ".";
+            AllureWrapper.step("errorMessage");
             Assert.fail(errorMessage, fileNotFoundException);
         } catch (IOException ioException) {
-            String errorMessage = "An IO exception occurred while parsing the test data CSV file. Folder path: " + folderPath + ". File name: " + fileName + ".";
-            testBase.reportLog(errorMessage, 1, ChainTestReporter.LogToStandardOut.YES, ChainTestReporter.AttachScreenshot.NO);
+            String errorMessage = "An IO exception occurred while parsing the test data CSV file. Folder path: "
+                    + folderPath + ". File name: " + fileName + ".";
+            AllureWrapper.step("errorMessage");
             Assert.fail(errorMessage, ioException);
         }
 
-        // This code should be inaccessible. An error is placed in case of any unexpected scenarios.
-        String errorMessage = "An unexpected error appeared while reading test data CSV file. Folder path: " + folderPath + ". File name: " + fileName + ".";
-        testBase.reportLog(errorMessage, 1, ChainTestReporter.LogToStandardOut.YES, ChainTestReporter.AttachScreenshot.NO);
+        // This code should be inaccessible. An error is placed in case of any
+        // unexpected scenarios.
+        String errorMessage = "An unexpected error appeared while reading test data CSV file. Folder path: "
+                + folderPath + ". File name: " + fileName + ".";
+        AllureWrapper.step("errorMessage");
         Assert.fail(errorMessage);
         return null;
     }
@@ -75,7 +83,8 @@ public class DataProvider {
         // Reads data from the CSV file using the csvReader method.
         Object[][] csvData = csvReader(testBase, folderPath, fileName);
 
-        // Check which browsers are to be executed according to the configuration.properties file.
+        // Check which browsers are to be executed according to the
+        // configuration.properties file.
         ArrayList<String> browserList = new ArrayList<String>();
         if (testBase.configuration.browserBrowserExecutionChrome) {
             browserList.add("chrome");
@@ -97,7 +106,8 @@ public class DataProvider {
         int newColumnCount = oldColumnCount + 1;
         Object[][] dataWithBrowsers = new Object[newRowCount][newColumnCount];
 
-        // Creates a new object array with browser names to be executed in the 1st column. Additional rows / iterations are created for each browser to run.
+        // Creates a new object array with browser names to be executed in the 1st
+        // column. Additional rows / iterations are created for each browser to run.
         int currentRow = 0;
         for (int rowIteration = 0; rowIteration < oldRowCount; rowIteration++) {
             for (String browserName : browserList) {

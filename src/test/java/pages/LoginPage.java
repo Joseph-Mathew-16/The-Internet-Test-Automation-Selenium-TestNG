@@ -1,6 +1,7 @@
 package pages;
 
 import org.openqa.selenium.By;
+
 import testbase.TheInternetWrapper;
 
 /**
@@ -20,7 +21,7 @@ public class LoginPage extends TheInternetWrapper {
      *
      * @param username - the username to be entered in the username field.
      * @return LoginPage - returns the current instance of LoginPage for method
-     * chaining.
+     *         chaining.
      */
     public LoginPage enterUsername(String username) {
         sendKeys(usernameField, username);
@@ -32,7 +33,7 @@ public class LoginPage extends TheInternetWrapper {
      *
      * @param password - the password to be entered in the password field.
      * @return LoginPage - returns the current instance of LoginPage for method
-     * chaining.
+     *         chaining.
      */
     public LoginPage enterPassword(String password) {
         sendKeys(passwordField, password);

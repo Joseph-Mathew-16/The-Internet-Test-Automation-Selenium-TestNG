@@ -1,10 +1,6 @@
 package testbase;
 
 import org.testng.annotations.AfterMethod;
-import org.testng.annotations.Listeners;
-import utilities.ChainTestReporter;
-
-@Listeners(ChainTestReporter.class)
 
 public class TheInternetWrapper extends TestBase {
 
