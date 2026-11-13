@@ -12,5 +12,4 @@ target/
 
 # Allure report
 allure-report/
-
-reference/
+history.jsonl
