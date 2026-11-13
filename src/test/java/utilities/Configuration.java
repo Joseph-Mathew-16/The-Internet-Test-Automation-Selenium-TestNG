@@ -7,9 +7,6 @@ import java.time.Duration;
 import java.util.Properties;
 
 import org.testng.Assert;
-import org.testng.Reporter;
-
-import testbase.TestBase;
 
 public class Configuration {
 
@@ -33,7 +30,7 @@ public class Configuration {
      * properties from the configuration.properties file and initializes the static
      * variables with the corresponding values.
      */
-    public Configuration(TestBase testBase) {
+    public Configuration() {
 
         properties = new Properties();
         try {

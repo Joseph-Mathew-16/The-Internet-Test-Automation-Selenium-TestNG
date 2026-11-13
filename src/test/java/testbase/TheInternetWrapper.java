@@ -10,7 +10,7 @@ public class TheInternetWrapper extends TestBase {
     }
 
     public Object[][] csvReader(String folderPath, String fileName) {
-        return new utilities.DataProvider().csvReader(this, folderPath, fileName);
+        return new utilities.DataProvider().csvReader(folderPath, fileName);
     }
 
     public Object[][] csvReaderWithBrowser(String folderPath, String fileName) {

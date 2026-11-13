@@ -13,7 +13,7 @@ public class RetryAnalyzer implements IRetryAnalyzer {
     public RetryAnalyzer() {
         Configuration configuration = TestBase.configurationThreadLocal.get();
         if (configuration == null) {
-            configuration = new Configuration(null); // loads configuration.properties
+            configuration = new Configuration(); // loads configuration.properties
         }
         this.maxRetryCount = configuration.retryLogicMaxRetries;
     }

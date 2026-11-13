@@ -42,7 +42,7 @@ public class TestBase {
      */
     public TestBase() {
         if (getConfiguration() == null) {
-            configuration = new Configuration(this);
+            configuration = new Configuration();
             configurationThreadLocal.set(configuration);
             AllureWrapper.step("Initialized new Configuration object.", ScreenshotOption.SKIP);
         } else {
@@ -59,7 +59,7 @@ public class TestBase {
      * as the explicit wait duration.
      */
     public TestBase(Duration explicitWaitDuration) {
-        configuration = new Configuration(this);
+        configuration = new Configuration();
         configuration.timeoutsDurationsExplicitWait = explicitWaitDuration;
         AllureWrapper.step("Initialized new Configuration object. Explicit wait duration set as "
                 + explicitWaitDuration.toString() + ".", ScreenshotOption.SKIP);

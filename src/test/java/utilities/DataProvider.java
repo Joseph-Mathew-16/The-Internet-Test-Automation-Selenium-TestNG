@@ -12,8 +12,6 @@ import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVParser;
 import org.apache.commons.csv.CSVRecord;
 import org.testng.Assert;
-import org.testng.Reporter;
-
 import testbase.TestBase;
 
 public class DataProvider {
@@ -27,7 +25,7 @@ public class DataProvider {
      * @param fileName   The CSV file name.
      * @return 2D Object array of CSV data (skips header).
      */
-    public Object[][] csvReader(TestBase testBase, String folderPath, String fileName) {
+    public Object[][] csvReader(String folderPath, String fileName) {
 
         // Prepares the file path. Also sanitizes the path using .normalize() method.
         String path = Paths.get("src", "test", "resources", "test-data", folderPath, fileName).normalize().toString();
@@ -81,7 +79,7 @@ public class DataProvider {
 
     public Object[][] csvReaderWithBrowser(TestBase testBase, String folderPath, String fileName) {
         // Reads data from the CSV file using the csvReader method.
-        Object[][] csvData = csvReader(testBase, folderPath, fileName);
+        Object[][] csvData = csvReader(folderPath, fileName);
 
         // Check which browsers are to be executed according to the
         // configuration.properties file.
