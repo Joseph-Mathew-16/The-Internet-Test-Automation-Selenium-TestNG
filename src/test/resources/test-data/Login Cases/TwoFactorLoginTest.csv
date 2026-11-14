@@ -1,2 +1,2 @@
-"Username","Password"
-"tomsmith","SuperSecretPassword!"
+"Username","Password","ExpectedMessage"
+"tomsmith","SuperSecretPassword!","You logged in with two-factor authentication!"

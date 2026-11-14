@@ -36,20 +36,21 @@ public class TestLoginTest extends TheInternetWrapper {
      * @param browser  the browser to run on (first column added by the data provider)
      * @param username the username from the CSV file
      * @param password the password from the CSV file
+     * @param expectedMessage the text the success message must contain, from the CSV file
      */
     @Test(dataProvider = "CSV Data Reader With Browsers")
     @Owner("Joseph Mathew")
     @Severity(SeverityLevel.CRITICAL)
     @Feature("Login")
     @Description("Logs in through the Form Authentication page and verifies the success message on the secure page.")
-    public void login(String browser, String username, String password) {
+    public void login(String browser, String username, String password, String expectedMessage) {
         launchBrowser(browser);
 
         new HomePage().clickFormAuthenticationButton().enterUsername(username).enterPassword(password)
                 .clickLoginButton();
 
         // Soft assertion: a failure is recorded but verified only when the test ends.
-        softly().assertThat(new SecurePage().getSuccessMessage()).contains("You logged into a secure area!");
+        softly().assertThat(new SecurePage().getSuccessMessage()).contains(expectedMessage);
     }
 
 }

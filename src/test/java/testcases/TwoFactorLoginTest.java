@@ -33,9 +33,11 @@ public class TwoFactorLoginTest extends TheInternetWrapper {
      * @param browser  the browser to run on (first column added by the data provider)
      * @param username the username from the CSV file
      * @param password the password from the CSV file
+     * @param expectedMessage the text the success message must contain, from the CSV file
      */
     @Test(dataProvider = "CSV Data Reader With Browsers")
-    public void successfulTwoFactorLogin(String browser, String username, String password) {
+    public void successfulTwoFactorLogin(String browser, String username, String password,
+            String expectedMessage) {
         launchBrowser(browser);
 
         new HomePage().clickTwoFactorLoginButton().enterUsername(username).enterPassword(password).clickNextButton();
@@ -46,6 +48,6 @@ public class TwoFactorLoginTest extends TheInternetWrapper {
         new TwoFactorLoginPage().enterOtp(otpCode).clickVerifyButton();
 
         // Soft assertion: a failure is recorded but verified only when the test ends.
-        softly().assertThat(new SecurePage().getSuccessMessage()).contains("You logged in with two-factor authentication!");
+        softly().assertThat(new SecurePage().getSuccessMessage()).contains(expectedMessage);
     }
 }
