@@ -5,23 +5,22 @@ import org.openqa.selenium.By;
 import testbase.TheInternetWrapper;
 
 /**
- * This class represents the Login Page of the application.
+ * Page object for the Form Authentication login page.
  */
 public class LoginPage extends TheInternetWrapper {
 
     /**
-     * Locators for the login page elements
+     * Locators for the login page elements.
      */
     private final By usernameField = By.id("username");
     private final By passwordField = By.id("password");
     private final By loginButton = By.xpath("//button[@type=\"submit\"]");
 
     /**
-     * Method to enter username in username field.
+     * Types the username into the username field.
      *
-     * @param username - the username to be entered in the username field.
-     * @return LoginPage - returns the current instance of LoginPage for method
-     *         chaining.
+     * @param username the username to be entered in the username field.
+     * @return the current LoginPage, for method chaining.
      */
     public LoginPage enterUsername(String username) {
         sendKeys(usernameField, username);
@@ -29,11 +28,10 @@ public class LoginPage extends TheInternetWrapper {
     }
 
     /**
-     * Method to enter password in password field.
+     * Types the password into the password field.
      *
-     * @param password - the password to be entered in the password field.
-     * @return LoginPage - returns the current instance of LoginPage for method
-     *         chaining.
+     * @param password the password to be entered in the password field.
+     * @return the current LoginPage, for method chaining.
      */
     public LoginPage enterPassword(String password) {
         sendKeys(passwordField, password);
@@ -41,9 +39,9 @@ public class LoginPage extends TheInternetWrapper {
     }
 
     /**
-     * Method to click login button.
+     * Clicks the login button.
      *
-     * @return SecurePage - returns a SecurePage object for method chaining.
+     * @return the SecurePage shown after a successful login.
      */
     public SecurePage clickLoginButton() {
         click(loginButton);

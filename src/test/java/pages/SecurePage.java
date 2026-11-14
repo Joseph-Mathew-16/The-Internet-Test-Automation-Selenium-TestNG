@@ -5,20 +5,19 @@ import org.openqa.selenium.By;
 import testbase.TheInternetWrapper;
 
 /**
- * This class represents the Secure Page of the application.
+ * Page object for the secure area shown after a successful login.
  */
 public class SecurePage extends TheInternetWrapper {
 
     /**
-     * Locators for the elements on the Home Page
+     * Locators for the elements on the Secure Page.
      */
     private final By successMessage = By.id("flash");
 
     /**
-     * Method to get the success message displayed on the Secure Page after
-     * successful login.
+     * Gets the flash message displayed on the Secure Page after login.
      *
-     * @return String - the success message text displayed on the Secure Page.
+     * @return the text of the flash message.
      */
     public String getSuccessMessage() {
         return getText(successMessage);

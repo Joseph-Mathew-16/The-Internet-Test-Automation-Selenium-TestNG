@@ -14,12 +14,19 @@ import org.apache.commons.csv.CSVRecord;
 import org.testng.Assert;
 import testbase.TestBase;
 
+/**
+ * Builds test data for TestNG data providers from CSV files under
+ * src/test/resources/test-data. Not related to the TestNG
+ * {@code @DataProvider} annotation, which tests use to call these methods.
+ */
 public class DataProvider {
 
     /**
      * Reads a CSV file from a specified folder within the test-data folder in
      * resources.
      * Returns a 2-dimensional Object array suitable for a TestNG DataProvider.
+     * Each CSV row becomes one test iteration and each column one test parameter.
+     * Fails the test if the file is missing, unreadable or has no data rows.
      *
      * @param folderPath The subfolder within test-data.
      * @param fileName   The CSV file name.
@@ -31,7 +38,8 @@ public class DataProvider {
         String path = Paths.get("src", "test", "resources", "test-data", folderPath, fileName).normalize().toString();
 
         try {
-            // Reads the CSV file.
+            // Reads the CSV file. The first line is treated as the header and skipped,
+            // and surrounding whitespace is trimmed from every value.
             Reader reader = new FileReader(path);
             CSVParser csvParser = CSVParser.builder().setReader(reader).setFormat(CSVFormat.DEFAULT.builder()
                     .setHeader().setSkipHeaderRecord(true).setIgnoreHeaderCase(true).setTrim(true).get()).get();
@@ -45,7 +53,8 @@ public class DataProvider {
                 Assert.fail(errorMessage);
             }
 
-            // Store the data from the test data file into the Object array.
+            // Store the data from the test data file into the Object array. The column
+            // count is taken from the first row and assumed to be the same for all rows.
             int rowCount = records.size();
             int columnCount = records.getFirst().size();
             Object[][] data = new Object[rowCount][columnCount];
@@ -77,6 +86,17 @@ public class DataProvider {
         return null;
     }
 
+    /**
+     * Reads a CSV file like {@link #csvReader(String, String)} and runs every row
+     * once for each browser enabled in configuration.properties. The browser name
+     * is added as the first column, so a test method takes the browser as its first
+     * parameter followed by the CSV columns.
+     *
+     * @param testBase   the TestBase whose configuration decides the browsers
+     * @param folderPath The subfolder within test-data.
+     * @param fileName   The CSV file name.
+     * @return 2D Object array with one row per CSV row per enabled browser
+     */
     public Object[][] csvReaderWithBrowser(TestBase testBase, String folderPath, String fileName) {
         // Reads data from the CSV file using the csvReader method.
         Object[][] csvData = csvReader(folderPath, fileName);
@@ -110,6 +130,7 @@ public class DataProvider {
         for (int rowIteration = 0; rowIteration < oldRowCount; rowIteration++) {
             for (String browserName : browserList) {
                 dataWithBrowsers[currentRow][0] = browserName;
+                // Copy the CSV columns after the browser name.
                 for (int columnIteration = 0; columnIteration < oldColumnCount; columnIteration++) {
                     dataWithBrowsers[currentRow][columnIteration + 1] = csvData[rowIteration][columnIteration];
                 }

@@ -5,27 +5,29 @@ import org.openqa.selenium.By;
 import testbase.TheInternetWrapper;
 
 /**
- * This class represents the Two-Factor Login Page of the application.
+ * Page object for the Two-Factor Login pages. The flow has two steps on the
+ * same page object: username and password first, then the one-time password
+ * (OTP) that the application displays on screen.
  */
 public class TwoFactorLoginPage extends TheInternetWrapper {
 
     /**
-     * Locators for the two-factor login page elements
+     * Locators for the two-factor login page elements.
      */
     private final By usernameField = By.id("username");
     private final By passwordField = By.id("password");
     private final By nextButton = By.cssSelector("button[type='submit']");
     private final By otpCode = By.id("otp-code");
     private final By otpField = By.id("code");
+    // TODO: Reuse the locator, instead of making a new one.
+    // Same selector as nextButton: the second step reuses the same kind of submit button.
     private final By verifyButton = By.cssSelector("button[type='submit']");
 
     /**
-     * Method to enter username in username field.
+     * Types the username into the username field.
      *
-     * @param username - the username to be entered in the username field.
-     * @return TwoFactorLoginPage - returns the current instance of
-     *         TwoFactorLoginPage for method
-     *         chaining.
+     * @param username the username to be entered in the username field.
+     * @return the current TwoFactorLoginPage, for method chaining.
      */
     public TwoFactorLoginPage enterUsername(String username) {
         sendKeys(usernameField, username);
@@ -33,12 +35,10 @@ public class TwoFactorLoginPage extends TheInternetWrapper {
     }
 
     /**
-     * Method to enter password in password field.
+     * Types the password into the password field.
      *
-     * @param password - the password to be entered in the password field.
-     * @return TwoFactorLoginPage - returns the current instance of
-     *         TwoFactorLoginPage for method
-     *         chaining.
+     * @param password the password to be entered in the password field.
+     * @return the current TwoFactorLoginPage, for method chaining.
      */
     public TwoFactorLoginPage enterPassword(String password) {
         sendKeys(passwordField, password);
@@ -46,11 +46,9 @@ public class TwoFactorLoginPage extends TheInternetWrapper {
     }
 
     /**
-     * Method to click next button.
+     * Clicks the next button to submit the credentials and move to the OTP step.
      *
-     * @return TwoFactorLoginPage - returns the current instance of
-     *         TwoFactorLoginPage for method
-     *         chaining.
+     * @return the current TwoFactorLoginPage, for method chaining.
      */
     public TwoFactorLoginPage clickNextButton() {
         click(nextButton);
@@ -58,21 +56,19 @@ public class TwoFactorLoginPage extends TheInternetWrapper {
     }
 
     /**
-     * Method to retrieve the one‑time password (OTP) shown on the page.
+     * Reads the one-time password (OTP) shown on the page.
      *
-     * @return String containing the 6‑digit OTP code.
+     * @return the 6-digit OTP code.
      */
     public String getOtpCodeText() {
         return getText(otpCode);
     }
 
     /**
-     * Enter the one‑time password into the OTP input field.
+     * Types the one-time password into the OTP input field.
      *
-     * @param otp 6‑digit code to enter.
-     * @return TwoFactorLoginPage - returns the current instance of
-     *         TwoFactorLoginPage for method
-     *         chaining.
+     * @param otp the 6-digit code to enter.
+     * @return the current TwoFactorLoginPage, for method chaining.
      */
     public TwoFactorLoginPage enterOtp(String otp) {
         sendKeys(otpField, otp);
@@ -80,9 +76,9 @@ public class TwoFactorLoginPage extends TheInternetWrapper {
     }
 
     /**
-     * Method to click verify button.
+     * Clicks the verify button to submit the OTP.
      *
-     * @return SecurePage - returns a SecurePage object for method chaining.
+     * @return the SecurePage shown after successful verification.
      */
     public SecurePage clickVerifyButton() {
         click(verifyButton);
