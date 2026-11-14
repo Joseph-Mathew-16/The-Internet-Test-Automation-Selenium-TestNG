@@ -81,7 +81,8 @@ a failed step and the test still reports as passed, and there is no retry. So:
    sure you did not break anything else (a shared page object change can affect other tests).
 
 # Principles
-- Prefer stable locators: `id`, `name`, a short unique CSS selector, XPath only as a last resort. Never index into a
+- Prefer stable locators: `id`, `name`, a short unique CSS selector (including `data-testid`/`data-test` hooks), then a
+  short relative XPath; see the "Locator strategy" bullet in CLAUDE.md. Never use absolute XPath or index into a
   list of generic elements when something more specific exists.
 - Fix timing with the framework's explicit-wait primitives. Never add `Thread.sleep` and do not raise the global
   implicit or explicit timeouts in `configuration.properties` to hide a problem. For a one-off longer wait use

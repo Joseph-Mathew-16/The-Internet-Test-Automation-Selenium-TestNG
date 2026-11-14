@@ -26,6 +26,16 @@ Run from the project root: configuration, test data and upload files are read th
 **Parallelism.** The suite declares `parallel="tests"` with `thread-count="5"` and `data-provider-thread-count="5"`, but it contains a single `<test>`, so nothing runs in parallel across tests or methods. Parallelism comes from the data providers: each test class's provider is declared `@DataProvider(..., parallel = true)`, so the rows of one method (including its browsers) run concurrently on up to 5 threads. Keep that flag on new providers, and keep anything shared between tests thread-local.
 
 **Element actions.** `TestBase` provides the wrapped primitives (`click`, `sendKeys`, `getText`, `clear`, `getAttribute`, `uploadFile`, alert helpers, `isDisplayed`/`isEnabled`/`isSelected`). Each does an explicit wait, then the action, inside an Allure step. Page objects build on these rather than calling Selenium directly: private `By` locators, fluent methods returning `this` or the next page object.
+- **Locator strategy.** Prefer, in this order: ID → Name → CSS selector → short relative XPath, and fall back to the rest only when needed:
+  1. **ID**: fastest and most reliable; use it whenever it is present and stable (beware of dynamically generated IDs).
+  2. **Name**: good when unique, which is common on form fields.
+  3. **CSS selector**: fast, readable and powerful (classes, attributes, parent/child); the best choice when there is no good ID.
+  4. **XPath**: the most flexible (can go up to parents, match on text); keep it short and relative, e.g. `//button[text()='Submit']`.
+  5. **Class name**: single class only and rarely unique, so fragile unless the class is distinctive.
+  6. **Tag name**: mainly for collections (all `<a>` or `<tr>`), not for one specific element.
+  7. **Link text / partial link text**: anchors only; breaks when the text changes or the site is localized.
+
+  The order is about uniqueness, stability and readability, not speed (the performance difference between ID, CSS and XPath is negligible). Avoid absolute XPath (`/html/body/div[2]/...`) and index-based locators, which break on layout changes. If a dedicated test hook such as `data-testid` or `data-test` exists, target it with CSS (`[data-testid='login-btn']`). Selenium 4 relative locators (`above()`, `below()`, `toRightOf()`) are a fallback, not a first choice.
 - The `is*` checks do not wait explicitly and return false for a missing element, but the implicit wait (10 s) still applies while the element is looked up.
 - For a one-off longer wait, use `new TestBase(configuration)` with a modified copy of the configuration; it leaves the thread's configuration untouched (see `HomePage.clickTwoFactorLoginButton`).
 - `uploadFile` resolves file names against `src/test/resources/test-data/Upload Files`.

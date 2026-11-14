@@ -51,7 +51,8 @@ Plans are only written to `specs/`. Do not create or edit Java code, test data o
 - Start at the application's base URL (from `configuration.properties`) and navigate to the page under test. Use `browser_snapshot` to read the page; avoid
   screenshots unless a snapshot cannot answer the question.
 - Identify every interactive element and, for each, the most stable locator the page offers, in this order: `id`,
-  `name`, a short unique CSS selector, then XPath as a last resort. Verify a locator with `browser_evaluate` (for
+  `name`, a short unique CSS selector (including `data-testid`/`data-test` hooks), then a short relative XPath; see the
+  "Locator strategy" bullet in CLAUDE.md. Verify a locator with `browser_evaluate` (for
   example `document.querySelectorAll('...').length`) when the snapshot does not make it obvious.
 - Note behaviour that affects automation: dynamic loading, delays, alerts/prompts, new windows or tabs, iframes,
   file dialogs, state that persists between visits, and pages that are broken or flaky by design (for example

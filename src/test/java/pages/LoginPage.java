@@ -14,7 +14,7 @@ public class LoginPage extends TheInternetWrapper {
      */
     private final By usernameField = By.id("username");
     private final By passwordField = By.id("password");
-    private final By loginButton = By.xpath("//button[@type=\"submit\"]");
+    private final By loginButton = By.cssSelector("button[type='submit']");
 
     /**
      * Types the username into the username field.

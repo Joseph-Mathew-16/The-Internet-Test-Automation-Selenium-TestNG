@@ -19,6 +19,7 @@ public class HomePage extends TheInternetWrapper {
      */
     private final By formAuthenticationButton = By.linkText("Form Authentication");
     private final By twoFactorLoginButton = By.linkText("Two-Factor Login");
+    private final By radioButtonsButton = By.cssSelector("a[href='/radio_buttons']");
 
     /**
      * Clicks the Form Authentication link and navigates to the Login Page.
@@ -43,5 +44,15 @@ public class HomePage extends TheInternetWrapper {
         configuration.timeoutsDurationsExplicitWait = Duration.ofSeconds(30);
         new TestBase(configuration).click(twoFactorLoginButton);
         return new TwoFactorLoginPage();
+    }
+
+    /**
+     * Clicks the Radio Buttons link and navigates to the Radio Buttons Page.
+     *
+     * @return RadioButtonsPage object representing the Radio Buttons Page
+     */
+    public RadioButtonsPage clickRadioButtonsButton() {
+        click(radioButtonsButton);
+        return new RadioButtonsPage();
     }
 }

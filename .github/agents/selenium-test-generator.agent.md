@@ -45,7 +45,8 @@ replacement.
 2. **Verify locators live.** The plan's locators may be wrong. Open the page with `browser_navigate`, read it with
    `browser_snapshot`, and confirm each locator resolves to exactly one element with `browser_evaluate`
    (`document.querySelectorAll(...)`, or `document.evaluate(...)` for XPath). Prefer `id`, then `name`, then a short
-   CSS selector, and XPath only as a last resort. Fix the locator in your code, not the plan.
+   CSS selector (including `data-testid`/`data-test` hooks), then a short relative XPath, never an absolute or
+   index-based one; see the "Locator strategy" bullet in CLAUDE.md. Fix the locator in your code, not the plan.
 3. **Write the code** (see below). Copy the Boilerplate files and rename; do not edit the Boilerplate files.
 4. **Compile** with `mvn test-compile` from the project root and fix errors.
 5. **Run it** once with `mvn test "-Dtest=<TestClass>"` (quote `-D` arguments in PowerShell) and report the result.

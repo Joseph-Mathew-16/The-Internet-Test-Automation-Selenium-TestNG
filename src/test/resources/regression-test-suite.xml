@@ -1,8 +1,9 @@
 <!DOCTYPE suite SYSTEM "https://testng.org/testng-1.0.dtd">
-<!-- Regression suite: runs every test class in the testcases package except BoilerplateTest. Tests run in parallel. -->
+<!-- Regression suite: runs every test class in the testcases package except BoilerplateTest. Tests
+run in parallel. -->
 <suite name="The Internet Application - Automated Test Suite"
-    parallel="tests"
-    data-provider-thread-count="5" thread-count="5">
+    parallel="classes"
+    data-provider-thread-count="3" thread-count="3">
     <listeners>
         <!-- Adds the retry analyzer to every test. -->
         <listener class-name="utilities.AnnotationTransformer" />

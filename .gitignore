@@ -13,3 +13,6 @@ target/
 # Allure report
 allure-report/
 history.jsonl
+
+# Playwright MCP logs
+.playwright-mcp
