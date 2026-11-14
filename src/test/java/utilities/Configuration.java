@@ -47,9 +47,6 @@ public class Configuration {
     /** How many times {@link RetryAnalyzer} re-runs a failed test. */
     public int retryLogicMaxRetries;
 
-    /** Highest step level written to the report (see configuration.properties for the levels). */
-    public int reportLogLevel;
-
     /**
      * Loads the configuration.properties file into the static properties object.
      * This runs once, the first time the Configuration class is used. The path is
@@ -106,8 +103,6 @@ public class Configuration {
             browserWindowSizeHeight = Integer.parseInt(properties.getProperty("browser.window-size.height"));
 
             retryLogicMaxRetries = Integer.parseInt(properties.getProperty("retry-logic.max-retries"));
-
-            reportLogLevel = Integer.parseInt(properties.getProperty("report.log-level"));
         } catch (IllegalArgumentException illegalArgumentException) {
             // NumberFormatException is a subclass of IllegalArgumentException.
             String errorMessage = "An error occurred while reading a value from configuration.properties file. A numeric property is either missing or misspelled, empty, not a whole number (e.g. contains letters, spaces or decimals), or too large for its type.";

@@ -5,7 +5,7 @@ import org.testng.annotations.AfterMethod;
 /**
  * Base class for every page object and test class of the application under
  * test. Adds the browser clean-up after each test and shortcuts for reading
- * CSV test data.
+ * CSV, XLSX and JSON test data.
  */
 public class TheInternetWrapper extends TestBase {
 
@@ -41,5 +41,56 @@ public class TheInternetWrapper extends TestBase {
      */
     public Object[][] csvReaderWithBrowser(String folderPath, String fileName) {
         return new utilities.DataProvider().csvReaderWithBrowser(this, folderPath, fileName);
+    }
+
+    /**
+     * Reads the first sheet of an XLSX file from test-data. See
+     * {@link utilities.DataProvider#xlsxReader(String, String)}.
+     *
+     * @param folderPath the subfolder within test-data
+     * @param fileName   the XLSX file name
+     * @return the XLSX rows, without the header, as TestNG data provider data
+     */
+    public Object[][] xlsxReader(String folderPath, String fileName) {
+        return new utilities.DataProvider().xlsxReader(folderPath, fileName);
+    }
+
+    /**
+     * Reads an XLSX file from test-data and repeats every row for each enabled
+     * browser. See
+     * {@link utilities.DataProvider#xlsxReaderWithBrowser(TestBase, String, String)}.
+     *
+     * @param folderPath the subfolder within test-data
+     * @param fileName   the XLSX file name
+     * @return the XLSX rows with the browser name added as the first column
+     */
+    public Object[][] xlsxReaderWithBrowser(String folderPath, String fileName) {
+        return new utilities.DataProvider().xlsxReaderWithBrowser(this, folderPath, fileName);
+    }
+
+    /**
+     * Reads a JSON file from test-data. See
+     * {@link utilities.DataProvider#jsonReader(String, String)}.
+     *
+     * @param folderPath the subfolder within test-data
+     * @param fileName   the JSON file name
+     * @return the JSON objects as TestNG data provider data; nested values are
+     *         returned as Jackson JsonNodes
+     */
+    public Object[][] jsonReader(String folderPath, String fileName) {
+        return new utilities.DataProvider().jsonReader(folderPath, fileName);
+    }
+
+    /**
+     * Reads a JSON file from test-data and repeats every object for each enabled
+     * browser. See
+     * {@link utilities.DataProvider#jsonReaderWithBrowser(TestBase, String, String)}.
+     *
+     * @param folderPath the subfolder within test-data
+     * @param fileName   the JSON file name
+     * @return the JSON objects with the browser name added as the first column
+     */
+    public Object[][] jsonReaderWithBrowser(String folderPath, String fileName) {
+        return new utilities.DataProvider().jsonReaderWithBrowser(this, folderPath, fileName);
     }
 }

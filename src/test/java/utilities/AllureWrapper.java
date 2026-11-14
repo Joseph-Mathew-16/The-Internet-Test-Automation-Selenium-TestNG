@@ -1,10 +1,13 @@
 package utilities;
 
 import java.io.ByteArrayInputStream;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 
 import org.openqa.selenium.OutputType;
 import org.openqa.selenium.TakesScreenshot;
 import org.openqa.selenium.WebDriver;
+import org.testng.ITestResult;
 import org.testng.Reporter;
 
 import io.qameta.allure.Allure;
@@ -28,6 +31,20 @@ import testbase.TestBase;
  * instead and test execution continues.
  */
 public class AllureWrapper {
+
+    /** 24-hour timestamp prefix for console / reporter output. */
+    private static final DateTimeFormatter TIMESTAMP_FORMAT = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+
+    /**
+     * Writes a step to the TestNG reporter and console as
+     * "[yyyy-MM-dd HH:mm:ss] [test case name] step". The test name comes from the
+     * TestNG result of the current thread; outside a running test it is omitted.
+     */
+    private static void logToConsole(String message) {
+        ITestResult result = Reporter.getCurrentTestResult();
+        String testName = result == null ? "" : "[" + result.getName() + "] ";
+        Reporter.log("[" + LocalDateTime.now().format(TIMESTAMP_FORMAT) + "] " + testName + message, true);
+    }
 
     /**
      * TestBase used to reach the driver for screenshots. One per thread so tests
@@ -98,7 +115,7 @@ public class AllureWrapper {
      * @param screenshotOption whether a screenshot is attached to the step
      */
     public static void step(String name, ScreenshotOption screenshotOption) {
-        Reporter.log(name, true);
+        logToConsole(name);
         // The screenshot is taken inside the step so Allure shows it under this step.
         Allure.step(name, () -> {
             attachScreenshot(screenshotOption);
@@ -123,7 +140,7 @@ public class AllureWrapper {
      * @param screenshotOption whether a screenshot is attached
      */
     public static void step(String name, Status status, ScreenshotOption screenshotOption) {
-        Reporter.log(name, true);
+        logToConsole(name);
         Allure.step(name, status);
         // Allure.step(name, status) creates a step with no body, so the screenshot is
         // attached to whichever step or test is currently open.
@@ -131,27 +148,28 @@ public class AllureWrapper {
     }
 
     /**
-     * Runs a block of code as a step. If the block throws, a screenshot is
-     * attached and the exception is rethrown so the step is marked failed.
+     * Runs a block of code as a step. A screenshot is always attached after the
+     * block finishes, whether it passes or throws. If the block throws, the
+     * exception is rethrown so the step is marked failed.
      *
      * @param name     the step description
      * @param runnable the code to run inside the step
      */
     public static void step(String name, Allure.ThrowableRunnableVoid runnable) {
-        Reporter.log(name, true);
+        logToConsole(name);
         Allure.step(name, () -> {
             try {
                 runnable.run();
-            } catch (Throwable t) {
+            } finally {
                 attachScreenshot(ScreenshotOption.ATTACH);
-                throw t;
             }
         });
     }
 
     /**
-     * Runs a block of code that returns a value as a step. If the block throws,
-     * a screenshot is attached and the exception is rethrown.
+     * Runs a block of code that returns a value as a step. A screenshot is
+     * always attached after the block finishes, whether it passes or throws. If
+     * the block throws, the exception is rethrown.
      *
      * @param name     the step description
      * @param runnable the code to run inside the step
@@ -159,13 +177,12 @@ public class AllureWrapper {
      * @return the value returned by the runnable
      */
     public static <T> T step(String name, Allure.ThrowableRunnable<T> runnable) {
-        Reporter.log(name, true);
+        logToConsole(name);
         return Allure.step(name, () -> {
             try {
                 return runnable.run();
-            } catch (Throwable t) {
+            } finally {
                 attachScreenshot(ScreenshotOption.ATTACH);
-                throw t;
             }
         });
     }
@@ -184,42 +201,41 @@ public class AllureWrapper {
 
     /**
      * Runs a block of code as a step and gives it the step context (to add
-     * parameters or rename the step). If the block throws, a screenshot is
-     * attached and the exception is rethrown.
+     * parameters or rename the step). A screenshot is always attached after the
+     * block finishes, whether it passes or throws. If the block throws, the
+     * exception is rethrown.
      *
      * @param name     the step description
      * @param runnable the code to run, receiving the step context
      */
     public static void step(String name, Allure.ThrowableContextRunnableVoid<Allure.StepContext> runnable) {
-        Reporter.log(name, true);
+        logToConsole(name);
         Allure.step(name, context -> {
             try {
                 runnable.run(context);
-            } catch (Throwable t) {
+            } finally {
                 attachScreenshot(ScreenshotOption.ATTACH);
-                throw t;
             }
         });
     }
 
     /**
      * Runs a block of code that returns a value as a step and gives it the step
-     * context. If the block throws, a screenshot is attached and the exception
-     * is rethrown.
+     * context. A screenshot is always attached after the block finishes, whether
+     * it passes or throws. If the block throws, the exception is rethrown.
      *
      * @param name     the step description
      * @param runnable the code to run, receiving the step context
      * @return the value returned by the runnable
      */
     public static Object step(String name, Allure.ThrowableContextRunnable<Object, Allure.StepContext> runnable) {
-        Reporter.log(name, true);
+        logToConsole(name);
         // The cast selects the context-aware Allure.step overload; the lambda alone is ambiguous.
         return Allure.step(name, (Allure.ThrowableContextRunnable<Object, Allure.StepContext>) context -> {
             try {
                 return runnable.run(context);
-            } catch (Throwable t) {
+            } finally {
                 attachScreenshot(ScreenshotOption.ATTACH);
-                throw t;
             }
         });
     }

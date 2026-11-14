@@ -16,12 +16,13 @@ public class TwoFactorLoginPage extends TheInternetWrapper {
      */
     private final By usernameField = By.id("username");
     private final By passwordField = By.id("password");
+    /**
+     * Shared submit button: it is the "Next" button on the credentials step and
+     * the "Verify" button on the OTP step, so both actions use this locator.
+     */
     private final By nextButton = By.cssSelector("button[type='submit']");
     private final By otpCode = By.id("otp-code");
     private final By otpField = By.id("code");
-    // TODO: Reuse the locator, instead of making a new one.
-    // Same selector as nextButton: the second step reuses the same kind of submit button.
-    private final By verifyButton = By.cssSelector("button[type='submit']");
 
     /**
      * Types the username into the username field.
@@ -81,7 +82,7 @@ public class TwoFactorLoginPage extends TheInternetWrapper {
      * @return the SecurePage shown after successful verification.
      */
     public SecurePage clickVerifyButton() {
-        click(verifyButton);
+        click(nextButton);
         return new SecurePage();
     }
 }

@@ -17,6 +17,7 @@ public class AnnotationTransformer implements IAnnotationTransformer {
      * Called by TestNG once for every {@code @Test} annotation before it runs.
      */
     @Override
+    @SuppressWarnings("rawtypes") // signature must match the raw types declared by IAnnotationTransformer
     public void transform(ITestAnnotation annotation,
             Class testClass,
             Constructor testConstructor,

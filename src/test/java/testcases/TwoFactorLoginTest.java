@@ -18,7 +18,7 @@ public class TwoFactorLoginTest extends TheInternetWrapper {
      * Supplies one iteration per CSV row per enabled browser. The CSV file is
      * named after this class, so renaming the class means renaming the file.
      */
-    @DataProvider(name = "CSV Data Reader With Browsers")
+    @DataProvider(name = "CSV Data Reader With Browsers", parallel = true)
     public Object[][] dataProvider() {
         String folderPath = "Login Cases";
         // Simple class name, e.g. "TwoFactorLoginTest", used as the CSV file name.
