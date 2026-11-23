@@ -1,21 +1,14 @@
 package pages;
 
-import org.openqa.selenium.By;
-
 import testbase.TheInternetWrapper;
 
-// TODO: Rename the class and file to match the page (e.g. CheckboxesPage).
+// TODO: Rename the class and file to match the page (e.g. CheckboxesPage), and
+// rename src/test/resources/object-repository/BoilerplatePage.properties to match.
 /**
- * Page object for the TODO: page name.
+ * Page object for the TODO: page name. Locators are in
+ * object-repository/BoilerplatePage.properties.
  */
 public class BoilerplatePage extends TheInternetWrapper {
-
-    /**
-     * Locators for the elements on this page.
-     */
-    // TODO: Replace with the real locators for this page.
-    private final By exampleField = By.id("TODO");
-    private final By exampleButton = By.id("TODO");
 
     /**
      * Types a value into the example field.
@@ -23,9 +16,9 @@ public class BoilerplatePage extends TheInternetWrapper {
      * @param value the text to be entered in the field.
      * @return the current page, for method chaining.
      */
-    // TODO: Rename the method, update the Javadoc, and use the right locator.
+    // TODO: Rename the method, update the Javadoc, and use the right repository key.
     public BoilerplatePage enterExampleValue(String value) {
-        sendKeys(exampleField, value);
+        sendKeys(locator("exampleField"), value);
         return this;
     }
 
@@ -37,7 +30,11 @@ public class BoilerplatePage extends TheInternetWrapper {
     // TODO: Rename the method, update the Javadoc, and return the correct next
     // page object (or `this` if the click stays on the same page).
     public BoilerplatePage clickExampleButton() {
-        click(exampleButton);
+        click(locator("exampleButton"));
+        // Placeholder entries take their values as extra arguments:
+        // click(locator("itemCheckbox", "item-1"));
+        // An element shared with another page can be read from that page's file:
+        // click(locator(LoginPage.class, "loginButton"));
         return new BoilerplatePage();
     }
 }

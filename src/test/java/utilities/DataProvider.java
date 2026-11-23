@@ -62,7 +62,7 @@ public class DataProvider {
             if (records.size() == 0) {
                 String errorMessage = "The test data CSV file is empty. Folder path: " + folderPath + ". File name: "
                         + fileName + ".";
-                AllureWrapper.step(errorMessage, ScreenshotOption.SKIP);
+                AllureWrapper.step(errorMessage);
                 Assert.fail(errorMessage);
             }
 
@@ -81,12 +81,12 @@ public class DataProvider {
         } catch (FileNotFoundException fileNotFoundException) {
             String errorMessage = "The specified test data CSV file either does not exist, is a directory instead of a file, or can't be read for some other reason. Folder path: "
                     + folderPath + ". File name: " + fileName + ".";
-            AllureWrapper.step(errorMessage, ScreenshotOption.SKIP);
+            AllureWrapper.step(errorMessage);
             Assert.fail(errorMessage, fileNotFoundException);
         } catch (IOException ioException) {
             String errorMessage = "An IO exception occurred while parsing the test data CSV file. Folder path: "
                     + folderPath + ". File name: " + fileName + ".";
-            AllureWrapper.step(errorMessage, ScreenshotOption.SKIP);
+            AllureWrapper.step(errorMessage);
             Assert.fail(errorMessage, ioException);
         }
 
@@ -94,7 +94,7 @@ public class DataProvider {
         // unexpected scenarios.
         String errorMessage = "An unexpected error appeared while reading test data CSV file. Folder path: "
                 + folderPath + ". File name: " + fileName + ".";
-        AllureWrapper.step(errorMessage, ScreenshotOption.SKIP);
+        AllureWrapper.step(errorMessage);
         Assert.fail(errorMessage);
         return null;
     }
@@ -132,7 +132,7 @@ public class DataProvider {
             if (sheet.getLastRowNum() < 1) {
                 String errorMessage = "The test data XLSX file is empty. Folder path: " + folderPath + ". File name: "
                         + fileName + ".";
-                AllureWrapper.step(errorMessage, ScreenshotOption.SKIP);
+                AllureWrapper.step(errorMessage);
                 Assert.fail(errorMessage);
             }
 
@@ -156,7 +156,7 @@ public class DataProvider {
                                 + cell.getCellType() + " instead of text. It was converted to the text Excel displays ("
                                 + dataFormatter.formatCellValue(cell, formulaEvaluator).trim()
                                 + "). Change the cell format to Text to use the exact value. Folder path: "
-                                + folderPath + ". File name: " + fileName + ".", Status.BROKEN, ScreenshotOption.SKIP);
+                                + folderPath + ". File name: " + fileName + ".", Status.BROKEN);
                     }
 
                     data[rowIteration][columnIteration] = (cell == null) ? ""
@@ -168,12 +168,12 @@ public class DataProvider {
         } catch (FileNotFoundException fileNotFoundException) {
             String errorMessage = "The specified test data XLSX file either does not exist, is a directory instead of a file, or can't be read for some other reason. Folder path: "
                     + folderPath + ". File name: " + fileName + ".";
-            AllureWrapper.step(errorMessage, ScreenshotOption.SKIP);
+            AllureWrapper.step(errorMessage);
             Assert.fail(errorMessage, fileNotFoundException);
         } catch (IOException ioException) {
             String errorMessage = "An IO exception occurred while parsing the test data XLSX file. Folder path: "
                     + folderPath + ". File name: " + fileName + ".";
-            AllureWrapper.step(errorMessage, ScreenshotOption.SKIP);
+            AllureWrapper.step(errorMessage);
             Assert.fail(errorMessage, ioException);
         }
 
@@ -181,7 +181,7 @@ public class DataProvider {
         // unexpected scenarios.
         String errorMessage = "An unexpected error appeared while reading test data XLSX file. Folder path: "
                 + folderPath + ". File name: " + fileName + ".";
-        AllureWrapper.step(errorMessage, ScreenshotOption.SKIP);
+        AllureWrapper.step(errorMessage);
         Assert.fail(errorMessage);
         return null;
     }
@@ -248,7 +248,7 @@ public class DataProvider {
             if (root == null || !root.isArray() || root.isEmpty() || !root.get(0).isObject()) {
                 String errorMessage = "The test data JSON file is empty or is not an array of objects. Folder path: "
                         + folderPath + ". File name: " + fileName + ".";
-                AllureWrapper.step(errorMessage, ScreenshotOption.SKIP);
+                AllureWrapper.step(errorMessage);
                 Assert.fail(errorMessage);
             }
 
@@ -281,7 +281,7 @@ public class DataProvider {
             // an unreadable file and invalid JSON.
             String errorMessage = "The test data JSON file does not exist, can't be read or is not valid JSON. Folder path: "
                     + folderPath + ". File name: " + fileName + ".";
-            AllureWrapper.step(errorMessage, ScreenshotOption.SKIP);
+            AllureWrapper.step(errorMessage);
             Assert.fail(errorMessage, ioException);
         }
 
@@ -289,7 +289,7 @@ public class DataProvider {
         // unexpected scenarios.
         String errorMessage = "An unexpected error appeared while reading test data JSON file. Folder path: "
                 + folderPath + ". File name: " + fileName + ".";
-        AllureWrapper.step(errorMessage, ScreenshotOption.SKIP);
+        AllureWrapper.step(errorMessage);
         Assert.fail(errorMessage);
         return null;
     }

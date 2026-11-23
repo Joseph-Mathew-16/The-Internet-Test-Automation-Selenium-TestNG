@@ -3,6 +3,9 @@ package utilities;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.nio.file.InvalidPathException;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.time.Duration;
 import java.util.Properties;
 
@@ -43,6 +46,11 @@ public class Configuration {
     public boolean browserHeadlessMode;
     public int browserWindowSizeWidth;
     public int browserWindowSizeHeight;
+    /**
+     * Absolute path of the folder that Chrome, Edge and Firefox save downloads to
+     * (resolved against the project root). Safari ignores it.
+     */
+    public Path browserDownloadDirectory;
 
     /** How many times {@link RetryAnalyzer} re-runs a failed test. */
     public int retryLogicMaxRetries;
@@ -55,18 +63,18 @@ public class Configuration {
     static {
         try (FileInputStream inputStream = new FileInputStream("./src/test/resources/configuration.properties")) {
             properties.load(inputStream);
-            AllureWrapper.step("Loaded configuration.properties file.", ScreenshotOption.SKIP);
+            AllureWrapper.step("Loaded configuration.properties file.");
         } catch (FileNotFoundException fileNotFoundException) {
             String errorMessage = "configuration.properties file could not be opened because the file does not exist, is a directory rather than a regular file, or cannot be opened for reading (e.g. missing permissions or the file is locked).";
-            AllureWrapper.step(errorMessage, ScreenshotOption.SKIP);
+            AllureWrapper.step(errorMessage);
             Assert.fail(errorMessage, fileNotFoundException);
         } catch (IOException ioException) {
             String errorMessage = "An error occurred when reading from or closing the input stream for configuration.properties file.";
-            AllureWrapper.step(errorMessage, ScreenshotOption.SKIP);
+            AllureWrapper.step(errorMessage);
             Assert.fail(errorMessage, ioException);
         } catch (IllegalArgumentException illegalArgumentException) {
             String errorMessage = "An error occurred due to the configuration.properties file containing a malformed Unicode escape sequence (a '\\u' not followed by four hexadecimal digits).";
-            AllureWrapper.step(errorMessage, ScreenshotOption.SKIP);
+            AllureWrapper.step(errorMessage);
             Assert.fail(errorMessage, illegalArgumentException);
         }
     }
@@ -101,16 +109,25 @@ public class Configuration {
 
             browserWindowSizeWidth = Integer.parseInt(properties.getProperty("browser.window-size.width"));
             browserWindowSizeHeight = Integer.parseInt(properties.getProperty("browser.window-size.height"));
+            // Browsers need an absolute path for their download preferences.
+            browserDownloadDirectory = Paths.get(properties.getProperty("browser.download-directory"))
+                    .toAbsolutePath().normalize();
 
             retryLogicMaxRetries = Integer.parseInt(properties.getProperty("retry-logic.max-retries"));
+        } catch (InvalidPathException invalidPathException) {
+            // Caught before IllegalArgumentException, of which it is a subclass.
+            String errorMessage = "The browser.download-directory value in configuration.properties file is not a valid path: "
+                    + invalidPathException.getInput() + ".";
+            AllureWrapper.step(errorMessage);
+            Assert.fail(errorMessage, invalidPathException);
         } catch (IllegalArgumentException illegalArgumentException) {
             // NumberFormatException is a subclass of IllegalArgumentException.
             String errorMessage = "An error occurred while reading a value from configuration.properties file. A numeric property is either missing or misspelled, empty, not a whole number (e.g. contains letters, spaces or decimals), or too large for its type.";
-            AllureWrapper.step(errorMessage, ScreenshotOption.SKIP);
+            AllureWrapper.step(errorMessage);
             Assert.fail(errorMessage, illegalArgumentException);
         } catch (NullPointerException nullPointerException) {
             String errorMessage = "An error occurred as a value read from configuration.properties file is null. A property is missing or misspelled in the file and its value was used where null is not allowed.";
-            AllureWrapper.step(errorMessage, ScreenshotOption.SKIP);
+            AllureWrapper.step(errorMessage);
             Assert.fail(errorMessage, nullPointerException);
         }
     }

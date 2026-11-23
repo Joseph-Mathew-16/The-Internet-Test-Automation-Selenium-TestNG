@@ -70,7 +70,9 @@ public class BoilerplateTest extends TheInternetWrapper {
     // TODO: Rename the method and match the parameters to the CSV columns
     // (after the leading browser column).
     // TODO: Change the dataProvider name if using the JSON or XLSX provider.
-    @Test(dataProvider = "CSV Data Reader With Browsers")
+    // TODO: Add the feature group after "regression" (lowercase and hyphenated, e.g. "check-boxes",
+    // reusing an existing one where it fits), and "smoke" if the test is a critical, fast check.
+    @Test(dataProvider = "CSV Data Reader With Browsers", groups = { "regression" })
     @Owner("TODO: Owner name")
     @Severity(SeverityLevel.NORMAL) // TODO: Pick the right severity.
     @Feature("TODO: Feature name")

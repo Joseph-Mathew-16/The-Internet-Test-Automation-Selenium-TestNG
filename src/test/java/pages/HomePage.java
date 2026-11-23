@@ -2,24 +2,15 @@ package pages;
 
 import java.time.Duration;
 
-import org.openqa.selenium.By;
-
 import testbase.TestBase;
 import testbase.TheInternetWrapper;
 import utilities.Configuration;
 
 /**
  * Page object for the application's home page, which lists links to the
- * example pages.
+ * example pages. Locators are in object-repository/HomePage.properties.
  */
 public class HomePage extends TheInternetWrapper {
-
-    /**
-     * Locators for the elements on the Home Page.
-     */
-    private final By formAuthenticationButton = By.linkText("Form Authentication");
-    private final By twoFactorLoginButton = By.linkText("Two-Factor Login");
-    private final By radioButtonsButton = By.cssSelector("a[href='/radio_buttons']");
 
     /**
      * Clicks the Form Authentication link and navigates to the Login Page.
@@ -27,7 +18,7 @@ public class HomePage extends TheInternetWrapper {
      * @return LoginPage object representing the Login Page
      */
     public LoginPage clickFormAuthenticationButton() {
-        click(formAuthenticationButton);
+        click(locator("formAuthenticationButton"));
         return new LoginPage();
     }
 
@@ -35,14 +26,15 @@ public class HomePage extends TheInternetWrapper {
      * Clicks the Two-Factor Login link and navigates to the Two-Factor Login
      * Page. This click needs a longer wait than the default, so it uses a
      * temporary Configuration with a 30 second explicit wait; the thread's
-     * Configuration is left unchanged.
+     * Configuration is left unchanged. The locator is read on this page object,
+     * not on the temporary TestBase, so it comes from HomePage.properties.
      *
      * @return TwoFactorLoginPage instance representing the next page
      */
     public TwoFactorLoginPage clickTwoFactorLoginButton() {
         Configuration configuration = new Configuration();
         configuration.timeoutsDurationsExplicitWait = Duration.ofSeconds(30);
-        new TestBase(configuration).click(twoFactorLoginButton);
+        new TestBase(configuration).click(locator("twoFactorLoginButton"));
         return new TwoFactorLoginPage();
     }
 
@@ -52,7 +44,7 @@ public class HomePage extends TheInternetWrapper {
      * @return RadioButtonsPage object representing the Radio Buttons Page
      */
     public RadioButtonsPage clickRadioButtonsButton() {
-        click(radioButtonsButton);
+        click(locator("radioButtonsButton"));
         return new RadioButtonsPage();
     }
 }

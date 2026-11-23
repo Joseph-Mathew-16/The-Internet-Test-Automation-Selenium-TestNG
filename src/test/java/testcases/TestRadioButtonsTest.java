@@ -38,7 +38,7 @@ public class TestRadioButtonsTest extends TheInternetWrapper {
      * @param sport          the sport to select, e.g. "tennis"
      * @param expectedResult the result text the page should display
      */
-    @Test(dataProvider = "CSV Data Reader With Browsers")
+    @Test(dataProvider = "CSV Data Reader With Browsers", groups = { "regression", "radio-buttons" })
     @Owner("Joseph Mathew")
     @Severity(SeverityLevel.NORMAL)
     @Feature("Radio Buttons")

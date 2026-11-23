@@ -11,9 +11,11 @@ public class TheInternetWrapper extends TestBase {
 
     /**
      * Quits the browser after every test method, pass or fail, so the next
-     * test (or retry) starts with a fresh browser.
+     * test (or retry) starts with a fresh browser. {@code alwaysRun} makes it run
+     * when a suite selects tests by group: otherwise TestNG skips configuration
+     * methods that are not in an included group and the browsers stay open.
      */
-    @AfterMethod
+    @AfterMethod(alwaysRun = true)
     public void tearDown() {
         quitBrowser();
     }

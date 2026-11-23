@@ -38,7 +38,7 @@ public class TestLoginTest extends TheInternetWrapper {
      * @param password the password from the CSV file
      * @param expectedMessage the text the success message must contain, from the CSV file
      */
-    @Test(dataProvider = "CSV Data Reader With Browsers")
+    @Test(dataProvider = "CSV Data Reader With Browsers", groups = { "smoke", "regression", "login" })
     @Owner("Joseph Mathew")
     @Severity(SeverityLevel.CRITICAL)
     @Feature("Login")

@@ -1,28 +1,14 @@
 package pages;
 
-import org.openqa.selenium.By;
-
 import testbase.TheInternetWrapper;
 
 /**
  * Page object for the Two-Factor Login pages. The flow has two steps on the
  * same page object: username and password first, then the one-time password
- * (OTP) that the application displays on screen.
+ * (OTP) that the application displays on screen. Locators are in
+ * object-repository/TwoFactorLoginPage.properties.
  */
 public class TwoFactorLoginPage extends TheInternetWrapper {
-
-    /**
-     * Locators for the two-factor login page elements.
-     */
-    private final By usernameField = By.id("username");
-    private final By passwordField = By.id("password");
-    /**
-     * Shared submit button: it is the "Next" button on the credentials step and
-     * the "Verify" button on the OTP step, so both actions use this locator.
-     */
-    private final By nextButton = By.cssSelector("button[type='submit']");
-    private final By otpCode = By.id("otp-code");
-    private final By otpField = By.id("code");
 
     /**
      * Types the username into the username field.
@@ -31,7 +17,7 @@ public class TwoFactorLoginPage extends TheInternetWrapper {
      * @return the current TwoFactorLoginPage, for method chaining.
      */
     public TwoFactorLoginPage enterUsername(String username) {
-        sendKeys(usernameField, username);
+        sendKeys(locator("usernameField"), username);
         return this;
     }
 
@@ -42,7 +28,7 @@ public class TwoFactorLoginPage extends TheInternetWrapper {
      * @return the current TwoFactorLoginPage, for method chaining.
      */
     public TwoFactorLoginPage enterPassword(String password) {
-        sendKeys(passwordField, password);
+        sendKeys(locator("passwordField"), password);
         return this;
     }
 
@@ -52,7 +38,7 @@ public class TwoFactorLoginPage extends TheInternetWrapper {
      * @return the current TwoFactorLoginPage, for method chaining.
      */
     public TwoFactorLoginPage clickNextButton() {
-        click(nextButton);
+        click(locator("nextButton"));
         return this;
     }
 
@@ -62,7 +48,7 @@ public class TwoFactorLoginPage extends TheInternetWrapper {
      * @return the 6-digit OTP code.
      */
     public String getOtpCodeText() {
-        return getText(otpCode);
+        return getText(locator("otpCode"));
     }
 
     /**
@@ -72,17 +58,18 @@ public class TwoFactorLoginPage extends TheInternetWrapper {
      * @return the current TwoFactorLoginPage, for method chaining.
      */
     public TwoFactorLoginPage enterOtp(String otp) {
-        sendKeys(otpField, otp);
+        sendKeys(locator("otpField"), otp);
         return this;
     }
 
     /**
-     * Clicks the verify button to submit the OTP.
+     * Clicks the verify button to submit the OTP. It is the same submit button
+     * as the next button, stored under its own key so either can change alone.
      *
      * @return the SecurePage shown after successful verification.
      */
     public SecurePage clickVerifyButton() {
-        click(nextButton);
+        click(locator("verifyButton"));
         return new SecurePage();
     }
 }

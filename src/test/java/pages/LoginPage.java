@@ -1,20 +1,12 @@
 package pages;
 
-import org.openqa.selenium.By;
-
 import testbase.TheInternetWrapper;
 
 /**
- * Page object for the Form Authentication login page.
+ * Page object for the Form Authentication login page. Locators are in
+ * object-repository/LoginPage.properties.
  */
 public class LoginPage extends TheInternetWrapper {
-
-    /**
-     * Locators for the login page elements.
-     */
-    private final By usernameField = By.id("username");
-    private final By passwordField = By.id("password");
-    private final By loginButton = By.cssSelector("button[type='submit']");
 
     /**
      * Types the username into the username field.
@@ -23,7 +15,7 @@ public class LoginPage extends TheInternetWrapper {
      * @return the current LoginPage, for method chaining.
      */
     public LoginPage enterUsername(String username) {
-        sendKeys(usernameField, username);
+        sendKeys(locator("usernameField"), username);
         return this;
     }
 
@@ -34,7 +26,7 @@ public class LoginPage extends TheInternetWrapper {
      * @return the current LoginPage, for method chaining.
      */
     public LoginPage enterPassword(String password) {
-        sendKeys(passwordField, password);
+        sendKeys(locator("passwordField"), password);
         return this;
     }
 
@@ -44,7 +36,7 @@ public class LoginPage extends TheInternetWrapper {
      * @return the SecurePage shown after a successful login.
      */
     public SecurePage clickLoginButton() {
-        click(loginButton);
+        click(locator("loginButton"));
         return new SecurePage();
     }
 }

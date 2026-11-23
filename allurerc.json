@@ -18,7 +18,6 @@
         "singleFile": false,
         "reportLanguage": "en",
         "open": false,
-        "publish": true,
         "groupBy": [
           "testClass"
         ]

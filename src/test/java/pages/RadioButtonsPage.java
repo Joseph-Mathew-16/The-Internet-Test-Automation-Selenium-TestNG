@@ -1,40 +1,14 @@
 package pages;
 
-import org.openqa.selenium.By;
-
 import testbase.TheInternetWrapper;
 
 /**
  * Page object for the Radio Buttons page, which has a "Favorite color" group
  * and a "Favorite sport" group and shows the current selection in a result line.
+ * Locators are in object-repository/RadioButtonsPage.properties; the radio
+ * button entries take the colour or sport value as their {0} placeholder.
  */
 public class RadioButtonsPage extends TheInternetWrapper {
-
-    /**
-     * Locators for the elements on this page.
-     */
-    private final By resultText = By.id("result");
-
-    /**
-     * Builds the locator of a colour radio button; the radio ids equal the colour values.
-     *
-     * @param color the colour value, e.g. "green".
-     * @return the locator of that colour radio button.
-     */
-    private By colorRadio(String color) {
-        return By.id(color);
-    }
-
-    /**
-     * Builds the locator of a sport radio button; sport radios have no id, so the
-     * value attribute is used.
-     *
-     * @param sport the sport value, e.g. "tennis".
-     * @return the locator of that sport radio button.
-     */
-    private By sportRadio(String sport) {
-        return By.cssSelector("input[name='sport'][value='" + sport + "']");
-    }
 
     /**
      * Selects a colour radio button.
@@ -43,7 +17,7 @@ public class RadioButtonsPage extends TheInternetWrapper {
      * @return the current page, for method chaining.
      */
     public RadioButtonsPage selectColor(String color) {
-        click(colorRadio(color));
+        click(locator("colorRadio", color));
         return this;
     }
 
@@ -54,7 +28,7 @@ public class RadioButtonsPage extends TheInternetWrapper {
      * @return the current page, for method chaining.
      */
     public RadioButtonsPage selectSport(String sport) {
-        click(sportRadio(sport));
+        click(locator("sportRadio", sport));
         return this;
     }
 
@@ -65,7 +39,7 @@ public class RadioButtonsPage extends TheInternetWrapper {
      * @return true if the radio button is selected.
      */
     public boolean isColorSelected(String color) {
-        return isSelected(colorRadio(color));
+        return isSelected(locator("colorRadio", color));
     }
 
     /**
@@ -75,7 +49,7 @@ public class RadioButtonsPage extends TheInternetWrapper {
      * @return true if the radio button is selected.
      */
     public boolean isSportSelected(String sport) {
-        return isSelected(sportRadio(sport));
+        return isSelected(locator("sportRadio", sport));
     }
 
     /**
@@ -84,6 +58,6 @@ public class RadioButtonsPage extends TheInternetWrapper {
      * @return the result text, e.g. "Color: green, Sport: tennis".
      */
     public String getResultText() {
-        return getText(resultText);
+        return getText(locator("resultText"));
     }
 }

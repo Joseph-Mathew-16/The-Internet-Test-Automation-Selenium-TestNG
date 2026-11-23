@@ -17,6 +17,8 @@
         <sonar.organization>joseph-mathew-16</sonar.organization>
         <allure.version>3.1.1</allure.version>
         <aspectj.version>1.9.27</aspectj.version>
+        <!-- Suite file Surefire runs; override with -DsuiteXmlFile=<path> to run another suite. -->
+        <suiteXmlFile>src/test/resources/regression-test-suite.xml</suiteXmlFile>
     </properties>
 
     <dependencies>
@@ -167,7 +169,7 @@
                 <version>3.5.6</version>
                 <configuration>
                     <suiteXmlFiles>
-                        <suiteXmlFile>src/test/resources/regression-test-suite.xml</suiteXmlFile>
+                        <suiteXmlFile>${suiteXmlFile}</suiteXmlFile>
                     </suiteXmlFiles>
                     <argLine>
                         -javaagent:"${settings.localRepository}/org/aspectj/aspectjweaver/${aspectj.version}/aspectjweaver-${aspectj.version}.jar"

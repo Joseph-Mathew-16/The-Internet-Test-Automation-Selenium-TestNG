@@ -27,7 +27,7 @@ import org.testng.Assert;
 
 import utilities.AllureWrapper;
 import utilities.Configuration;
-import utilities.ScreenshotOption;
+import utilities.ObjectRepository;
 import utilities.SoftAssert;
 
 /**
@@ -67,12 +67,12 @@ public class TestBase {
             if (getConfiguration() == null) {
                 configuration = new Configuration();
                 configurationThreadLocal.set(configuration);
-                AllureWrapper.step("Initialized new Configuration object.", ScreenshotOption.SKIP);
+                AllureWrapper.step("Initialized new Configuration object.");
             } else {
                 configuration = getConfiguration();
-                AllureWrapper.step("Reusing existing Configuration object.", ScreenshotOption.SKIP);
+                AllureWrapper.step("Reusing existing Configuration object.");
             }
-            AllureWrapper.step("Reusing existing RemoteWebDriver object.", ScreenshotOption.SKIP);
+            AllureWrapper.step("Reusing existing RemoteWebDriver object.");
         });
     }
 
@@ -86,9 +86,9 @@ public class TestBase {
      */
     public TestBase(Configuration configuration) {
         this.configuration = configuration;
-        AllureWrapper.step("Using provided temporary Configuration object.", ScreenshotOption.SKIP);
+        AllureWrapper.step("Using provided temporary Configuration object.");
 
-        AllureWrapper.step("Reusing existing RemoteWebDriver object.", ScreenshotOption.SKIP);
+        AllureWrapper.step("Reusing existing RemoteWebDriver object.");
     }
 
     /**
@@ -115,12 +115,15 @@ public class TestBase {
         return AllureWrapper.step("Launch " + browser + " browser.", () -> {
         try {
             RemoteWebDriver webDriver = null;
+            // Firefox does not create a missing download folder, so make sure it exists.
+            Files.createDirectories(configuration.browserDownloadDirectory);
+            String downloadDirectory = configuration.browserDownloadDirectory.toString();
             switch (browser) {
                 case "chrome":
                     ChromeOptions chromeOptions = new ChromeOptions();
+                    Map<String, Object> prefs = chromiumDownloadPreferences(downloadDirectory);
                     // Turn off Chrome's password manager and leak-detection popups, which
                     // would otherwise cover the page after a login.
-                    Map<String, Object> prefs = new HashMap<>();
                     prefs.put("credentials_enable_service", false);
                     prefs.put("profile.password_manager_enabled", false);
                     prefs.put("profile.password_manager_leak_detection", false);
@@ -134,23 +137,31 @@ public class TestBase {
                     }
                     webDriver = new ChromeDriver(chromeOptions);
                     driverThreadLocal.set(webDriver);
-                    // Lets AllureWrapper find this driver for screenshots.
-                    AllureWrapper.setTestBase(this);
-                    AllureWrapper.step("Launched Chrome browser successfully.", ScreenshotOption.SKIP);
+                    AllureWrapper.step("Launched Chrome browser successfully.");
                     break;
                 case "firefox":
                     FirefoxOptions firefoxOptions = new FirefoxOptions();
+                    // 2 = save to browser.download.dir instead of the user's Downloads folder.
+                    firefoxOptions.addPreference("browser.download.folderList", 2);
+                    firefoxOptions.addPreference("browser.download.dir", downloadDirectory);
+                    firefoxOptions.addPreference("browser.download.useDownloadDir", true);
+                    firefoxOptions.addPreference("browser.download.always_ask_before_handling_new_types", false);
+                    firefoxOptions.addPreference("browser.download.alwaysOpenPanel", false);
+                    firefoxOptions.addPreference("browser.download.manager.showWhenStarting", false);
+                    firefoxOptions.addPreference("browser.helperApps.neverAsk.saveToDisk", FIREFOX_SAVE_TO_DISK_TYPES);
+                    // Save PDFs instead of opening them in the built-in viewer.
+                    firefoxOptions.addPreference("pdfjs.disabled", true);
                     if (configuration.browserHeadlessMode) {
                         firefoxOptions.addArguments("-headless", "--width=" + configuration.browserWindowSizeWidth,
                                 "--height=" + configuration.browserWindowSizeHeight);
                     }
                     webDriver = new FirefoxDriver(firefoxOptions);
                     driverThreadLocal.set(webDriver);
-                    AllureWrapper.setTestBase(this);
-                    AllureWrapper.step("Launched Firefox browser successfully.", ScreenshotOption.SKIP);
+                    AllureWrapper.step("Launched Firefox browser successfully.");
                     break;
                 case "edge":
                     EdgeOptions edgeOptions = new EdgeOptions();
+                    edgeOptions.setExperimentalOption("prefs", chromiumDownloadPreferences(downloadDirectory));
                     if (configuration.browserHeadlessMode) {
                         edgeOptions.addArguments("--headless=new",
                                 "--window-size=" + configuration.browserWindowSizeWidth + ","
@@ -158,46 +169,73 @@ public class TestBase {
                     }
                     webDriver = new EdgeDriver(edgeOptions);
                     driverThreadLocal.set(webDriver);
-                    AllureWrapper.setTestBase(this);
-                    AllureWrapper.step("Launched Edge browser successfully.", ScreenshotOption.SKIP);
+                    AllureWrapper.step("Launched Edge browser successfully.");
                     break;
                 case "safari":
                     if (configuration.browserHeadlessMode) {
-                        AllureWrapper.step("Safari does not support headless mode; launching with a visible window.",
-                                ScreenshotOption.SKIP);
+                        AllureWrapper.step("Safari does not support headless mode; launching with a visible window.");
                     }
+                    AllureWrapper.step("Safari does not support setting a download folder; downloads go to its default folder.");
                     webDriver = new SafariDriver();
                     driverThreadLocal.set(webDriver);
-                    AllureWrapper.setTestBase(this);
-                    AllureWrapper.step("Launched Safari browser successfully.", ScreenshotOption.SKIP);
+                    AllureWrapper.step("Launched Safari browser successfully.");
                     break;
                 default:
                     String errorMessage = "The specified browser is not supported: " + browser
                             + ". Supported browsers are: Chrome, Firefox, Edge, Safari.";
-                    AllureWrapper.step(errorMessage, ScreenshotOption.SKIP);
+                    AllureWrapper.step(errorMessage);
                     Assert.fail(errorMessage);
                     break;
             }
             webDriver.get(configuration.url);
-            AllureWrapper.step("Loading URL for application under test: " + configuration.url + ".", ScreenshotOption.SKIP);
+            AllureWrapper.step("Loading URL for application under test: " + configuration.url + ".");
             // The timeouts are applied after the first page load, so the initial load
             // is not covered by the page load timeout.
             webDriver.manage().timeouts().pageLoadTimeout(configuration.timeoutsDurationsPageLoadTimeout);
             AllureWrapper
                     .step("Page load timeout set to: " + configuration.timeoutsDurationsPageLoadTimeout.getSeconds()
-                            + " seconds.", ScreenshotOption.SKIP);
+                            + " seconds.");
             webDriver.manage().timeouts().implicitlyWait(configuration.timeoutsDurationsImplicitWait);
             AllureWrapper
                     .step("Implicit wait duration set to: " + configuration.timeoutsDurationsImplicitWait.getSeconds()
-                            + " seconds.", ScreenshotOption.SKIP);
+                            + " seconds.");
+            // Screenshot of the landing page, attached to the launch step.
+            AllureWrapper.attachScreenshot(webDriver);
             return webDriver;
-        } catch (Exception e) {
+        } catch (Exception exception) {
             String errorMessage = "Failed to launch browser: " + browser + ".";
-            AllureWrapper.step(errorMessage, ScreenshotOption.SKIP);
-            Assert.fail(errorMessage, e);
+            AllureWrapper.step(errorMessage);
+            Assert.fail(errorMessage, exception);
             return null;
         }
         });
+    }
+
+    /**
+     * MIME types Firefox saves straight to the download folder without asking. Only
+     * needed by older Firefox versions; recent ones save every type silently once
+     * browser.download.always_ask_before_handling_new_types is false.
+     */
+    private static final String FIREFOX_SAVE_TO_DISK_TYPES = String.join(",", "application/octet-stream",
+            "application/pdf", "application/json", "application/zip", "application/x-zip-compressed",
+            "application/vnd.ms-excel", "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+            "application/msword", "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+            "text/plain", "text/csv", "text/xml", "application/xml", "image/png", "image/jpeg", "image/gif");
+
+    /**
+     * Builds the Chrome/Edge preferences that save downloads to the given folder
+     * without showing the save dialog. Returns a mutable map so callers can add
+     * their own preferences.
+     *
+     * @param downloadDirectory - Absolute path of the download folder
+     * @return Map - The download preferences
+     */
+    private static Map<String, Object> chromiumDownloadPreferences(String downloadDirectory) {
+        Map<String, Object> prefs = new HashMap<>();
+        prefs.put("download.default_directory", downloadDirectory);
+        prefs.put("download.prompt_for_download", false);
+        prefs.put("download.directory_upgrade", true);
+        return prefs;
     }
 
     /**
@@ -224,6 +262,39 @@ public class TestBase {
     }
 
     /**
+     * Returns a locator from this page object's repository file,
+     * src/test/resources/object-repository/&lt;ClassName&gt;.properties. Call it
+     * on the page object itself (not on a {@code new TestBase(...)}), because the
+     * file is chosen by the class of the object it is called on. See
+     * {@link ObjectRepository} for the file format.
+     *
+     * @param key  - The entry name in the repository file, e.g. "usernameField"
+     * @param args - The values for the placeholders {0}, {1}, ... of the entry, if
+     *             it has any
+     * @return By - The locator
+     */
+    protected By locator(String key, Object... args) {
+        return locator(getClass(), key, args);
+    }
+
+    /**
+     * Returns a locator from another page object's repository file, for elements
+     * that are genuinely shared between pages. The class reference keeps the call
+     * checked by the compiler and updated by IDE renames (the .properties file
+     * still has to be renamed by hand).
+     *
+     * @param page - The page object class whose repository file is read, e.g.
+     *             LoginPage.class
+     * @param key  - The entry name in that repository file
+     * @param args - The values for the placeholders {0}, {1}, ... of the entry, if
+     *             it has any
+     * @return By - The locator
+     */
+    protected By locator(Class<? extends TestBase> page, String key, Object... args) {
+        return ObjectRepository.get(page.getSimpleName(), key, args);
+    }
+
+    /**
      * This method will quit the browser and remove the driver instance from the
      * ThreadLocal variable.
      */
@@ -234,11 +305,10 @@ public class TestBase {
             RemoteWebDriver webDriver = getDriver();
             driverThreadLocal.remove();
             webDriver.quit();
-            AllureWrapper.clearTestBase();
-            AllureWrapper.step("Browser quit successfully.", ScreenshotOption.SKIP);
+            AllureWrapper.step("Browser quit successfully.");
         } catch (Exception e) {
             String errorMessage = "Failed to quit browser.";
-            AllureWrapper.step(errorMessage, ScreenshotOption.SKIP);
+            AllureWrapper.step(errorMessage);
             Assert.fail(errorMessage, e);
         }
     }
@@ -252,12 +322,17 @@ public class TestBase {
      */
     public void click(By locator) {
         AllureWrapper.step("Click an element located by: " + locator + ".", () -> {
-            new WebDriverWait(getDriver(), configuration.timeoutsDurationsExplicitWait)
-                    .until(ExpectedConditions.and(ExpectedConditions.presenceOfElementLocated(locator),
-                            ExpectedConditions.visibilityOfElementLocated(locator),
-                            ExpectedConditions.elementToBeClickable(locator)));
-            getDriver().findElement(locator).click();
-            AllureWrapper.step("Clicked the element.", ScreenshotOption.SKIP);
+            try {
+                new WebDriverWait(getDriver(), configuration.timeoutsDurationsExplicitWait)
+                        .until(ExpectedConditions.and(ExpectedConditions.presenceOfElementLocated(locator),
+                                ExpectedConditions.visibilityOfElementLocated(locator),
+                                ExpectedConditions.elementToBeClickable(locator)));
+                getDriver().findElement(locator).click();
+                AllureWrapper.step("Clicked the element.");
+            } finally {
+                // Inside the step, so the screenshot attaches to it whether the click passed or failed.
+                AllureWrapper.attachScreenshot(getDriver());
+            }
         });
     }
 
@@ -274,12 +349,16 @@ public class TestBase {
     public void sendKeys(By locator, CharSequence... keysToSend) {
         AllureWrapper.step("Enter keys " + String.join(", ", keysToSend) + " into element located by: " + locator + ".",
                 () -> {
-                    new WebDriverWait(getDriver(), configuration.timeoutsDurationsExplicitWait)
-                            .until(ExpectedConditions.and(ExpectedConditions.presenceOfElementLocated(locator),
-                                    ExpectedConditions.visibilityOfElementLocated(locator),
-                                    ExpectedConditions.elementToBeClickable(locator)));
-                    getDriver().findElement(locator).sendKeys(keysToSend);
-                    AllureWrapper.step("Entered keys into the element.", ScreenshotOption.SKIP);
+                    try {
+                        new WebDriverWait(getDriver(), configuration.timeoutsDurationsExplicitWait)
+                                .until(ExpectedConditions.and(ExpectedConditions.presenceOfElementLocated(locator),
+                                        ExpectedConditions.visibilityOfElementLocated(locator),
+                                        ExpectedConditions.elementToBeClickable(locator)));
+                        getDriver().findElement(locator).sendKeys(keysToSend);
+                        AllureWrapper.step("Entered keys into the element.");
+                    } finally {
+                        AllureWrapper.attachScreenshot(getDriver());
+                    }
                 });
     }
 
@@ -295,12 +374,16 @@ public class TestBase {
      */
     public String getText(By locator) {
         return AllureWrapper.step("Get visible text from element located by: " + locator + ".", () -> {
-            new WebDriverWait(getDriver(), configuration.timeoutsDurationsExplicitWait)
-                    .until(ExpectedConditions.and(ExpectedConditions.presenceOfElementLocated(locator),
-                            ExpectedConditions.visibilityOfElementLocated(locator)));
-            String text = getDriver().findElement(locator).getText();
-            AllureWrapper.step("Retrieved text: " + text + ".", ScreenshotOption.SKIP);
-            return text;
+            try {
+                new WebDriverWait(getDriver(), configuration.timeoutsDurationsExplicitWait)
+                        .until(ExpectedConditions.and(ExpectedConditions.presenceOfElementLocated(locator),
+                                ExpectedConditions.visibilityOfElementLocated(locator)));
+                String text = getDriver().findElement(locator).getText();
+                AllureWrapper.step("Retrieved text: " + text + ".");
+                return text;
+            } finally {
+                AllureWrapper.attachScreenshot(getDriver());
+            }
         });
     }
 
@@ -313,12 +396,16 @@ public class TestBase {
      */
     public void clear(By locator) {
         AllureWrapper.step("Clear the element located by: " + locator + ".", () -> {
-            new WebDriverWait(getDriver(), configuration.timeoutsDurationsExplicitWait)
-                    .until(ExpectedConditions.and(ExpectedConditions.presenceOfElementLocated(locator),
-                            ExpectedConditions.visibilityOfElementLocated(locator),
-                            ExpectedConditions.elementToBeClickable(locator)));
-            getDriver().findElement(locator).clear();
-            AllureWrapper.step("Cleared the element.", ScreenshotOption.SKIP);
+            try {
+                new WebDriverWait(getDriver(), configuration.timeoutsDurationsExplicitWait)
+                        .until(ExpectedConditions.and(ExpectedConditions.presenceOfElementLocated(locator),
+                                ExpectedConditions.visibilityOfElementLocated(locator),
+                                ExpectedConditions.elementToBeClickable(locator)));
+                getDriver().findElement(locator).clear();
+                AllureWrapper.step("Cleared the element.");
+            } finally {
+                AllureWrapper.attachScreenshot(getDriver());
+            }
         });
     }
 
@@ -334,14 +421,18 @@ public class TestBase {
     public String getAttribute(By locator, String attribute) {
         return AllureWrapper.step("Get attribute '" + attribute + "' from element located by: " + locator + ".",
                 () -> {
-                    new WebDriverWait(getDriver(), configuration.timeoutsDurationsExplicitWait)
-                            .until(ExpectedConditions.presenceOfElementLocated(locator));
-                    String value = getDriver().findElement(locator).getDomProperty(attribute);
-                    if (value == null) {
-                        value = getDriver().findElement(locator).getDomAttribute(attribute);
+                    try {
+                        new WebDriverWait(getDriver(), configuration.timeoutsDurationsExplicitWait)
+                                .until(ExpectedConditions.presenceOfElementLocated(locator));
+                        String value = getDriver().findElement(locator).getDomProperty(attribute);
+                        if (value == null) {
+                            value = getDriver().findElement(locator).getDomAttribute(attribute);
+                        }
+                        AllureWrapper.step("Retrieved attribute value: " + value + ".");
+                        return value;
+                    } finally {
+                        AllureWrapper.attachScreenshot(getDriver());
                     }
-                    AllureWrapper.step("Retrieved attribute value: " + value + ".", ScreenshotOption.SKIP);
-                    return value;
                 });
     }
 
@@ -356,10 +447,14 @@ public class TestBase {
      */
     public boolean isDisplayed(By locator) {
         return AllureWrapper.step("Check if element located by: " + locator + " is displayed.", () -> {
-            List<WebElement> elements = getDriver().findElements(locator);
-            boolean displayed = !elements.isEmpty() && elements.get(0).isDisplayed();
-            AllureWrapper.step("Element displayed: " + displayed + ".", ScreenshotOption.SKIP);
-            return displayed;
+            try {
+                List<WebElement> elements = getDriver().findElements(locator);
+                boolean displayed = !elements.isEmpty() && elements.get(0).isDisplayed();
+                AllureWrapper.step("Element displayed: " + displayed + ".");
+                return displayed;
+            } finally {
+                AllureWrapper.attachScreenshot(getDriver());
+            }
         });
     }
 
@@ -372,10 +467,14 @@ public class TestBase {
      */
     public boolean isEnabled(By locator) {
         return AllureWrapper.step("Check if element located by: " + locator + " is enabled.", () -> {
-            List<WebElement> elements = getDriver().findElements(locator);
-            boolean enabled = !elements.isEmpty() && elements.get(0).isEnabled();
-            AllureWrapper.step("Element enabled: " + enabled + ".", ScreenshotOption.SKIP);
-            return enabled;
+            try {
+                List<WebElement> elements = getDriver().findElements(locator);
+                boolean enabled = !elements.isEmpty() && elements.get(0).isEnabled();
+                AllureWrapper.step("Element enabled: " + enabled + ".");
+                return enabled;
+            } finally {
+                AllureWrapper.attachScreenshot(getDriver());
+            }
         });
     }
 
@@ -389,10 +488,14 @@ public class TestBase {
      */
     public boolean isSelected(By locator) {
         return AllureWrapper.step("Check if element located by: " + locator + " is selected.", () -> {
-            List<WebElement> elements = getDriver().findElements(locator);
-            boolean selected = !elements.isEmpty() && elements.get(0).isSelected();
-            AllureWrapper.step("Element selected: " + selected + ".", ScreenshotOption.SKIP);
-            return selected;
+            try {
+                List<WebElement> elements = getDriver().findElements(locator);
+                boolean selected = !elements.isEmpty() && elements.get(0).isSelected();
+                AllureWrapper.step("Element selected: " + selected + ".");
+                return selected;
+            } finally {
+                AllureWrapper.attachScreenshot(getDriver());
+            }
         });
     }
 
@@ -403,10 +506,14 @@ public class TestBase {
      */
     public void acceptAlert() {
         AllureWrapper.step("Accept the alert.", () -> {
-            new WebDriverWait(getDriver(), configuration.timeoutsDurationsExplicitWait)
-                    .until(ExpectedConditions.alertIsPresent());
-            getDriver().switchTo().alert().accept();
-            AllureWrapper.step("Accepted the alert.", ScreenshotOption.SKIP);
+            try {
+                new WebDriverWait(getDriver(), configuration.timeoutsDurationsExplicitWait)
+                        .until(ExpectedConditions.alertIsPresent());
+                getDriver().switchTo().alert().accept();
+                AllureWrapper.step("Accepted the alert.");
+            } finally {
+                AllureWrapper.attachScreenshot(getDriver());
+            }
         });
     }
 
@@ -417,10 +524,14 @@ public class TestBase {
      */
     public void dismissAlert() {
         AllureWrapper.step("Dismiss the alert.", () -> {
-            new WebDriverWait(getDriver(), configuration.timeoutsDurationsExplicitWait)
-                    .until(ExpectedConditions.alertIsPresent());
-            getDriver().switchTo().alert().dismiss();
-            AllureWrapper.step("Dismissed the alert.", ScreenshotOption.SKIP);
+            try {
+                new WebDriverWait(getDriver(), configuration.timeoutsDurationsExplicitWait)
+                        .until(ExpectedConditions.alertIsPresent());
+                getDriver().switchTo().alert().dismiss();
+                AllureWrapper.step("Dismissed the alert.");
+            } finally {
+                AllureWrapper.attachScreenshot(getDriver());
+            }
         });
     }
 
@@ -433,11 +544,18 @@ public class TestBase {
      */
     public String getAlertText() {
         return AllureWrapper.step("Get text from the alert.", () -> {
-            new WebDriverWait(getDriver(), configuration.timeoutsDurationsExplicitWait)
-                    .until(ExpectedConditions.alertIsPresent());
-            String text = getDriver().switchTo().alert().getText();
-            AllureWrapper.step("Retrieved alert text: " + text + ".", ScreenshotOption.SKIP);
-            return text;
+            try {
+                new WebDriverWait(getDriver(), configuration.timeoutsDurationsExplicitWait)
+                        .until(ExpectedConditions.alertIsPresent());
+                String text = getDriver().switchTo().alert().getText();
+                AllureWrapper.step("Retrieved alert text: " + text + ".");
+                return text;
+            } catch (Throwable t) {
+                // Screenshot on failure only: on success the alert is still open, and taking a
+                // screenshot would make the browser dismiss it before the test handles it.
+                AllureWrapper.attachScreenshot(getDriver());
+                throw t;
+            }
         });
     }
 
@@ -450,10 +568,16 @@ public class TestBase {
      */
     public void sendKeysToAlert(String keysToSend) {
         AllureWrapper.step("Enter keys " + keysToSend + " into the alert.", () -> {
-            new WebDriverWait(getDriver(), configuration.timeoutsDurationsExplicitWait)
-                    .until(ExpectedConditions.alertIsPresent());
-            getDriver().switchTo().alert().sendKeys(keysToSend);
-            AllureWrapper.step("Entered keys into the alert.", ScreenshotOption.SKIP);
+            try {
+                new WebDriverWait(getDriver(), configuration.timeoutsDurationsExplicitWait)
+                        .until(ExpectedConditions.alertIsPresent());
+                getDriver().switchTo().alert().sendKeys(keysToSend);
+                AllureWrapper.step("Entered keys into the alert.");
+            } catch (Throwable t) {
+                // Screenshot on failure only: the prompt is still open on success (see getAlertText).
+                AllureWrapper.attachScreenshot(getDriver());
+                throw t;
+            }
         });
     }
 
@@ -479,51 +603,54 @@ public class TestBase {
      */
     public void uploadFile(By locator, String fileName) {
         AllureWrapper.step("Upload file " + fileName + " using element located by: " + locator + ".", () -> {
-            Path filePath = Paths.get("src/test/resources/test-data/Upload Files", fileName).toAbsolutePath();
-            if (!Files.isRegularFile(filePath)) {
-                String errorMessage = "File to upload does not exist: " + filePath + ".";
-                AllureWrapper.step(errorMessage, ScreenshotOption.SKIP);
-                Assert.fail(errorMessage);
-            }
-            new WebDriverWait(getDriver(), configuration.timeoutsDurationsExplicitWait)
-                    .until(ExpectedConditions.presenceOfElementLocated(locator));
-            WebElement input = getDriver().findElement(locator);
-            JavascriptExecutor js = getDriver();
-
             try {
-                input.sendKeys(filePath.toString());
-                AllureWrapper.step("Uploaded the file using sendKeys.", ScreenshotOption.SKIP);
-                return;
-            } catch (InvalidElementStateException _) {
-                AllureWrapper.step("sendKeys could not upload the file, making the input visible and retrying.",
-                        ScreenshotOption.SKIP);
-            }
+                Path filePath = Paths.get("src/test/resources/test-data/Upload Files", fileName).toAbsolutePath();
+                if (!Files.isRegularFile(filePath)) {
+                    String errorMessage = "File to upload does not exist: " + filePath + ".";
+                    AllureWrapper.step(errorMessage);
+                    Assert.fail(errorMessage);
+                }
+                new WebDriverWait(getDriver(), configuration.timeoutsDurationsExplicitWait)
+                        .until(ExpectedConditions.presenceOfElementLocated(locator));
+                WebElement input = getDriver().findElement(locator);
+                JavascriptExecutor js = getDriver();
 
-            try {
-                js.executeScript("var e = arguments[0];"
-                        + "e.style.display = 'block'; e.style.visibility = 'visible'; e.style.opacity = '1';"
-                        + "e.style.height = '1px'; e.style.width = '1px'; e.style.position = 'fixed';"
-                        + "e.removeAttribute('hidden'); e.disabled = false;", input);
-                input.sendKeys(filePath.toString());
-                AllureWrapper.step("Uploaded the file using sendKeys after making the input visible.", ScreenshotOption.SKIP);
-                return;
-            } catch (InvalidElementStateException _) {
-                AllureWrapper.step("sendKeys still failed, assigning the file with JavaScript.",
-                        ScreenshotOption.SKIP);
-            }
+                try {
+                    input.sendKeys(filePath.toString());
+                    AllureWrapper.step("Uploaded the file using sendKeys.");
+                    return;
+                } catch (InvalidElementStateException _) {
+                    AllureWrapper.step("sendKeys could not upload the file, making the input visible and retrying.");
+                }
 
-            String content = Base64.getEncoder().encodeToString(Files.readAllBytes(filePath));
-            String mimeType = Files.probeContentType(filePath);
-            js.executeScript("var input = arguments[0], name = arguments[1], type = arguments[2];"
-                    + "var bytes = Uint8Array.from(atob(arguments[3]), function(c) { return c.charCodeAt(0); });"
-                    + "var dt = new DataTransfer();"
-                    + "dt.items.add(new File([bytes], name, { type: type }));"
-                    + "input.files = dt.files;"
-                    + "input.dispatchEvent(new Event('input', { bubbles: true }));"
-                    + "input.dispatchEvent(new Event('change', { bubbles: true }));", input,
-                    filePath.getFileName().toString(), mimeType == null ? "application/octet-stream" : mimeType,
-                    content);
-            AllureWrapper.step("Uploaded the file using JavaScript.", ScreenshotOption.SKIP);
+                try {
+                    js.executeScript("var e = arguments[0];"
+                            + "e.style.display = 'block'; e.style.visibility = 'visible'; e.style.opacity = '1';"
+                            + "e.style.height = '1px'; e.style.width = '1px'; e.style.position = 'fixed';"
+                            + "e.removeAttribute('hidden'); e.disabled = false;", input);
+                    input.sendKeys(filePath.toString());
+                    AllureWrapper.step("Uploaded the file using sendKeys after making the input visible.");
+                    return;
+                } catch (InvalidElementStateException _) {
+                    AllureWrapper.step("sendKeys still failed, assigning the file with JavaScript.");
+                }
+
+                String content = Base64.getEncoder().encodeToString(Files.readAllBytes(filePath));
+                String mimeType = Files.probeContentType(filePath);
+                js.executeScript("var input = arguments[0], name = arguments[1], type = arguments[2];"
+                        + "var bytes = Uint8Array.from(atob(arguments[3]), function(c) { return c.charCodeAt(0); });"
+                        + "var dt = new DataTransfer();"
+                        + "dt.items.add(new File([bytes], name, { type: type }));"
+                        + "input.files = dt.files;"
+                        + "input.dispatchEvent(new Event('input', { bubbles: true }));"
+                        + "input.dispatchEvent(new Event('change', { bubbles: true }));", input,
+                        filePath.getFileName().toString(), mimeType == null ? "application/octet-stream" : mimeType,
+                        content);
+                AllureWrapper.step("Uploaded the file using JavaScript.");
+            } finally {
+                // Also runs after the early returns above.
+                AllureWrapper.attachScreenshot(getDriver());
+            }
         });
     }
 

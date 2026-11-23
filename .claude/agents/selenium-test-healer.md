@@ -13,13 +13,16 @@ reliably. Read `CLAUDE.md` first; it is the source of truth for how the framewor
 Run everything from the project root. In PowerShell quote every `-D` argument.
 - One class or method: `mvn test "-Dtest=<TestClass>"` or `mvn test "-Dtest=<TestClass>#<method>"`. One data row
   still runs on every enabled browser, so expect about 30 s.
-- Full suite: `mvn test` (pinned to `src/test/resources/regression-test-suite.xml`).
+- Full suite: `mvn test` (`src/test/resources/regression-test-suite.xml`, the default of the `suiteXmlFile` property).
+- Another suite file: `mvn test "-DsuiteXmlFile=<path>"`. Use it for the temporary suite copy below, or for a suite
+  that selects tests by group (see "Test groups" in CLAUDE.md). `-Dgroups` is ignored while a suite XML is configured.
 - Compile only: `mvn test-compile`.
 
 **Pitfall: `-Dtest` runs skip the suite XML and its listeners.** A failed `softly()` assertion is then only logged as
 a failed step and the test still reports as passed, and there is no retry. So:
 - To find failures, run the full suite, or a small temporary copy of the suite XML that declares the same listeners
-  and only the class under test. Delete the temporary copy when you are done.
+  and only the class under test. Run it with `mvn test "-DsuiteXmlFile=<path to the copy>"`; the
+  scratchpad is a good place for it. Delete the temporary copy when you are done.
 - Never declare a test healed from a green `-Dtest` run alone. Check the output for failed Allure steps, or re-run
   through the suite XML.
 - With the suite XML, a failing test is retried up to `retry-logic.max-retries` times (each with a new browser) before
@@ -42,8 +45,11 @@ a failed step and the test still reports as passed, and there is no retry. So:
    (`document.querySelectorAll(...)` or `document.evaluate(...)`). Use `browser_console_messages` and
    `browser_network_requests` when the page misbehaves. Do not guess a locator you have not verified.
 4. **Fix the root cause**, in the right place:
-   - Locators and page behaviour go in the page object (`src/test/java/pages`), as a private `By` or a method built
-     on the `TestBase` primitives, so every test using it is healed at once.
+   - Locator values go in the page's object repository file
+     (`src/test/resources/object-repository/<PageClass>.properties`, entries `key=strategy:value`), and page
+     behaviour in the page object (`src/test/java/pages`) as a method built on the `TestBase` primitives that
+     passes `locator("<key>")`, so every test using it is healed at once. A missing-file or missing-key failure
+     names the file and key; after editing a repository file, run `mvn test "-Dtest=ObjectRepositoryTest"`.
    - Expected values go in the test data file (`src/test/resources/test-data/<folder>/<TestClassName>.<ext>`).
    - Test logic goes in the test class. Verifications stay as `softly().assertThat(...)`; never call `assertAll()`.
 5. **Verify.** Re-run the test (through the suite XML for soft-assertion checks, as described above) and confirm it
@@ -60,6 +66,7 @@ a failed step and the test still reports as passed, and there is no retry. So:
   `new TestBase(configuration)` with a modified copy of the configuration (find an existing example with a search for `new TestBase(` in `pages`).
 - Keep the framework conventions: page objects pick up the thread's driver, framework code reports problems with an
   Allure step plus `Assert.fail(message, cause)`, and anything shared between tests must be thread-local.
+- Keep the `groups` of a test unchanged when healing it, and keep `alwaysRun = true` on configuration methods.
 - Do not change `testbase`, `utilities`, `pom.xml`, the suite XML or `configuration.properties` unless the root cause
   is really there. If it is, make the smallest change and say so clearly in your report.
 - Do not weaken a test to make it pass (removing an assertion, loosening an expected value to something
